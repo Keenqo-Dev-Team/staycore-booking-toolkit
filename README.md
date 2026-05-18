@@ -54,7 +54,7 @@ packages/create-staycore-site → create-staycore-site (npm)
 packages/skill-claude-code    → Skill Claude Code (marketplace)
 templates/base                → Template Vite/React/TS canonique
 templates/presets             → 4 presets visuels (love-room, chateau-luxe…)
-apps/docs                     → docs.stay-core.com/booking-toolkit (Nextra)
+apps/docs                     → dbt-docs.stay-core.com (Nextra)
 e2e                           → Tests bout-en-bout (scaffold + build + smoke)
 ```
 
@@ -62,7 +62,7 @@ e2e                           → Tests bout-en-bout (scaffold + build + smoke)
 
 ## Liens
 
-- 📖 **Documentation complète** : https://staycore-booking-toolkit-docs.vercel.app *(en attente DNS docs.stay-core.com)*
+- 📖 **Documentation complète** : https://dbt-docs.stay-core.com *(en attente DNS docs.stay-core.com)*
 - 🐛 **Issues** : https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/issues
 - 🛠️ **Stay'Core PMS** : https://stay-core.com
 

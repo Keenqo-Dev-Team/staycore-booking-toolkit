@@ -1,5 +1,16 @@
 # create-staycore-site
 
+## 0.2.1
+
+### Patch Changes
+
+- Migrate documentation URLs from `staycore-booking-toolkit-docs.vercel.app` to the official custom domain **`dbt-docs.stay-core.com`**.
+
+  User-visible change: `npx create-staycore-site --help` now prints the canonical docs URL. The runtime API endpoints, types, and behaviors are unchanged — purely a doc-URL refresh.
+
+- Updated dependencies
+  - @staycore/booking-sdk@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

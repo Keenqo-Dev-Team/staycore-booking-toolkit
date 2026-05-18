@@ -95,7 +95,7 @@ Le SDK officiel `@staycore/booking-sdk` (utilisé par le template) typifie tout 
 
 - 📦 CLI : https://www.npmjs.com/package/create-staycore-site
 - 🧩 SDK : https://www.npmjs.com/package/@staycore/booking-sdk
-- 📖 Docs : https://docs.stay-core.com/booking-toolkit
+- 📖 Docs : https://dbt-docs.stay-core.com
 - 🐛 Issues : https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/issues
 - 🛠️ Stay'Core PMS : https://stay-core.com
 

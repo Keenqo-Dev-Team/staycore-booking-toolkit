@@ -111,6 +111,6 @@ EXAMPLE
       --brand-name="Les Suites Bisous"
 
 DOCS
-  https://docs.stay-core.com/booking-toolkit
+  https://dbt-docs.stay-core.com
 `);
 }

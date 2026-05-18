@@ -77,5 +77,5 @@ SDK officiel (utilisé par le template) : `@staycore/booking-sdk` (TypeScript, h
 
 - CLI : https://www.npmjs.com/package/create-staycore-site
 - SDK : https://www.npmjs.com/package/@staycore/booking-sdk
-- Docs : https://docs.stay-core.com/booking-toolkit
+- Docs : https://dbt-docs.stay-core.com
 - Repo : https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit

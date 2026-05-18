@@ -1,7 +1,7 @@
 import type { DocsThemeConfig } from 'nextra-theme-docs';
 import { useRouter } from 'next/router';
 
-const SITE_URL = 'https://staycore-booking-toolkit-docs.vercel.app';
+const SITE_URL = 'https://dbt-docs.stay-core.com';
 const SITE_NAME = 'Stay’Core Direct Booking Toolkit';
 const SITE_TAGLINE = 'Sites de réservation directe intégrés au PMS Stay’Core. SDK TypeScript, CLI npx, Skill Claude Code. Zéro commission Airbnb / Booking.';
 const SITE_KEYWORDS = [

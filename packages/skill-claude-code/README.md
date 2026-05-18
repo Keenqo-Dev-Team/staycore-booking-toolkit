@@ -6,7 +6,7 @@
 
 ### Option A — Marketplace Anthropic (recommandé)
 
-> *(en cours de soumission — voir docs.stay-core.com/booking-toolkit pour le statut)*
+> *(en cours de soumission — voir dbt-docs.stay-core.com pour le statut)*
 
 Dans Claude Code :
 
@@ -48,7 +48,7 @@ Le format `SKILL.md` est propriétaire Claude Code. Pour les autres agents, on f
 
 ## Liens
 
-- 📖 Docs complètes : https://docs.stay-core.com/booking-toolkit
+- 📖 Docs complètes : https://dbt-docs.stay-core.com
 - 📦 CLI npm : https://www.npmjs.com/package/create-staycore-site
 - 🧩 SDK npm : https://www.npmjs.com/package/@staycore/booking-sdk
 - 🐛 Issues : https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/issues
