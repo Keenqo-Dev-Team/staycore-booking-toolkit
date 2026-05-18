@@ -1,5 +1,29 @@
 # create-staycore-site
 
+## 0.2.0
+
+### Minor Changes
+
+- Add test mode support for the booking engine.
+
+  - `OrgConfig.config.test_mode: boolean` exposed by `pms.config()` — `true` when the org has enabled "test mode" in its Stay'Core dashboard.
+  - `CheckoutResponse.is_test?: boolean` mirrors the test marker on the freshly created booking.
+  - Scaffolded sites now ship with a `<TestModeBanner />` (sticky amber bar) that auto-appears whenever `config.test_mode === true`. Real guests can't mistake a test environment for the real site.
+
+  When test mode is ON:
+
+  - The Stay'Core backend skips availability checks at checkout time
+  - Reservations are flagged `is_test=true` and excluded from analytics, billing, channel sync
+  - No propagation to Channex / Airbnb / Booking
+  - Admins can purge synthetic data anytime via `DELETE /api/booking-engine/test-bookings`
+
+  Toggle in dashboard PMS: `/booking-engine` → card "🧪 Mode test".
+
+### Patch Changes
+
+- Updated dependencies
+  - @staycore/booking-sdk@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

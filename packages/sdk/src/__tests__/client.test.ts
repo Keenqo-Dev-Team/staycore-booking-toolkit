@@ -32,6 +32,7 @@ describe('createPmsClient', () => {
             terms_url: null,
             min_stay_nights: null,
             max_stay_nights: null,
+            test_mode: false,
           },
           stripe_public_key: 'pk_test_xxx',
         },
@@ -43,6 +44,32 @@ describe('createPmsClient', () => {
 
     expect(config.organization.slug).toBe('acme');
     expect(config.stripe_public_key).toBe('pk_test_xxx');
+    expect(config.config.test_mode).toBe(false);
+  });
+
+  it('surfaces config.test_mode = true when the engine is in test mode', async () => {
+    const fetchFn = mockFetch(async () =>
+      jsonResponse({
+        success: true,
+        data: {
+          organization: { name: 'Acme', slug: 'acme', logo: null },
+          config: {
+            payment_mode: 'full',
+            default_locale: 'fr',
+            branding: null,
+            terms_url: null,
+            min_stay_nights: null,
+            max_stay_nights: null,
+            test_mode: true,
+          },
+          stripe_public_key: 'pk_test_xxx',
+        },
+      }),
+    );
+
+    const client = createPmsClient({ orgSlug: 'acme', fetch: fetchFn });
+    const config = await client.config();
+    expect(config.config.test_mode).toBe(true);
   });
 
   it('serializes query params for price.compute', async () => {

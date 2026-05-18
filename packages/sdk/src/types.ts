@@ -39,6 +39,14 @@ export type OrgConfig = {
     terms_url: string | null;
     min_stay_nights: number | null;
     max_stay_nights: number | null;
+    /**
+     * When true, the org has enabled "test mode" in its dashboard. Checkouts
+     * against this engine are virtual: no calendar lock, no Channex propagation,
+     * no impact on analytics or billing — perfect for end-to-end dev validation.
+     * The template should surface a visible banner so test bookings can't be
+     * mistaken for real ones.
+     */
+    test_mode: boolean;
   };
   stripe_public_key: string | null;
 };
@@ -140,6 +148,8 @@ export type CheckoutResponse = {
   client_secret?: string;
   stripe_public_key?: string | null;
   currency?: string;
+  /** True if the booking was created against an engine in test mode. */
+  is_test?: boolean;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

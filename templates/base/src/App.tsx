@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navbar } from './components/common/Navbar.tsx';
 import { Footer } from './components/common/Footer.tsx';
 import { CookieConsent } from './components/common/CookieConsent.tsx';
+import { TestModeBanner } from './components/common/TestModeBanner.tsx';
 import { HomePage } from './pages/HomePage.tsx';
 import { PropertiesPage } from './pages/PropertiesPage.tsx';
 import { PropertyDetailPage } from './pages/PropertyDetailPage.tsx';
@@ -49,6 +50,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <TestModeBanner />
       <Navbar onNavigate={navigate} currentPath={currentPath} />
       <main className="flex-1">{renderPage()}</main>
       <Footer onNavigate={navigate} />
