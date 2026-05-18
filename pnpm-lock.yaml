@@ -23,6 +23,10 @@ importers:
   e2e: {}
 
   packages/create-staycore-site:
+    dependencies:
+      '@staycore/booking-sdk':
+        specifier: workspace:^
+        version: link:../sdk
     devDependencies:
       '@types/node':
         specifier: ^20.17.0
@@ -30,6 +34,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.4(@types/node@20.19.41)(jiti@1.21.7)
 
   packages/sdk:
     devDependencies:
