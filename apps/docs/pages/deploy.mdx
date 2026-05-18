@@ -1,0 +1,72 @@
+# Déployer
+
+> Le template scaffoldé est un projet Vite standard. Tu peux le déployer sur n'importe quel hébergeur de sites statiques.
+
+## Vercel (recommandé)
+
+```bash
+cd mon-site
+npx vercel deploy --prod
+```
+
+Suivre les prompts. La première fois, Vercel détecte automatiquement Vite et configure tout. Le build prend ~30-60 secondes.
+
+## Netlify
+
+```bash
+npx netlify deploy --prod --dir=dist
+```
+
+Avec `dist` = sortie du `npm run build`.
+
+## Cloudflare Pages
+
+```bash
+npm run build
+npx wrangler pages deploy dist
+```
+
+## Configuration commune (toutes plateformes)
+
+**Build command** : `npm run build`
+**Output directory** : `dist`
+**Node version** : `20.x` ou `22.x`
+
+Variables d'environnement utiles :
+
+| Variable | Description |
+|---|---|
+| `VITE_STRIPE_PUBLIC_KEY` | Override de la clé Stripe (sinon récupérée live depuis le PMS) |
+
+## Important : CORS
+
+Une fois ton site déployé sur (par exemple) `https://les-suites-bisous.fr`, **tu dois ajouter ce domaine dans le PMS** pour que CORS l'autorise :
+
+1. Dashboard Stay'Core → **Settings → Custom domains** (ou **Booking engine → Allowed origins**)
+2. Ajouter `https://les-suites-bisous.fr`
+3. Sauvegarder
+
+Sans cette étape, ton site va échouer avec une erreur CORS au premier appel à l'API.
+
+`*.stay-core.com` et `*.vercel.app` sont autorisés par défaut, donc les **preview deployments Vercel** marchent sans config supplémentaire.
+
+Voir [Custom domain](/custom-domain) pour plus de détails.
+
+## Smoke test post-deploy
+
+```bash
+# 1. Le site répond
+curl -I https://mon-site.com  # → 200
+
+# 2. La config Stay'Core charge
+# Ouvrir le site dans le browser, F12 → Network → filtrer "book"
+# Tu dois voir : GET /api/v1/book/{slug} → 200 avec ton org
+
+# 3. Tester un parcours complet
+# Aller sur /reserver, choisir des dates, créer une vraie résa de test
+# Vérifier dans Stay'Core dashboard que la réservation apparaît
+```
+
+## Domaine custom Stay'Core (avancé)
+
+Si tu veux que ton site soit un sous-domaine de `stay-core.com` (ex: `mon-org.stay-core.com`), c'est géré directement par Stay'Core via Vercel Domains API. Voir [Custom domain](/custom-domain).

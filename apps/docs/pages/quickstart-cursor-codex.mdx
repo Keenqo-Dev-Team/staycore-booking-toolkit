@@ -1,0 +1,43 @@
+# Quickstart — Cursor / Codex / Windsurf
+
+> Le format Claude Code `SKILL.md` est propriétaire, mais on fournit un **`AGENTS.md` miroir** lisible par tous les autres assistants IA.
+
+## Approche 1 — L'agent suit le `AGENTS.md`
+
+1. Clone (ou télécharge) le repo :
+
+```bash
+git clone https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit
+```
+
+2. Ouvre ton agent (Cursor / Codex CLI / Windsurf / Continue / autre) dans un dossier vide
+3. Demande :
+
+> *« Lis [le fichier AGENTS.md du repo staycore-booking-toolkit](https://raw.githubusercontent.com/Keenqo-Dev-Team/staycore-booking-toolkit/main/packages/skill-claude-code/AGENTS.md) et suis ses instructions pour scaffolder un site love-room connecté à mon org `stayflex-immo`. »*
+
+L'agent suivra le même flow que le skill Claude Code (validation org → CLI → personnalisation).
+
+## Approche 2 — L'agent appelle juste le CLI
+
+Plus simple : demande directement à ton agent d'exécuter le CLI :
+
+> *« Lance `npx create-staycore-site mon-site --org-slug=stayflex-immo --preset=love-room --non-interactive` puis aide-moi à personnaliser le résultat. »*
+
+Tu sautes complètement le skill — le CLI fait tout le travail, l'agent t'aide juste pour l'itération post-scaffold (édition de pages, composants, copy).
+
+## Approche 3 — Manuel total
+
+Si tu n'utilises pas d'agent IA, fais simplement [le quickstart CLI](/quickstart-cli). Tu auras exactement le même résultat.
+
+## Compatibilité matrice
+
+| Agent | Format skill natif | Workflow recommandé |
+|---|---|---|
+| **Claude Code** | `SKILL.md` propriétaire | [Skill installé](/quickstart-claude-code) |
+| **Cursor** | `.cursorrules` / contexte fichier | Lecture `AGENTS.md` + appel CLI |
+| **OpenAI Codex CLI** | `instructions.md` | Lecture `AGENTS.md` + appel CLI |
+| **Windsurf** | `.windsurfrules` | Lecture `AGENTS.md` + appel CLI |
+| **Continue** | `config.json` rules | Lecture `AGENTS.md` + appel CLI |
+| **Gemini Code Assist** | rules dans le panel | Lecture `AGENTS.md` + appel CLI |
+
+Le **dénominateur commun** est le CLI `create-staycore-site` : n'importe quel agent capable d'exécuter `npx` peut l'utiliser. Le skill Claude Code est un confort en plus, pas un prérequis.

@@ -5,11 +5,24 @@
   "description": "Public documentation site for the STAYCORE Direct Booking Toolkit",
   "license": "MIT",
   "scripts": {
-    "build": "echo \"(docs site — Nextra, to be added in Phase 6)\"",
-    "dev": "echo \"(docs dev — to be added in Phase 6)\"",
+    "dev": "next dev -p 4321",
+    "build": "next build",
+    "start": "next start -p 4321",
     "lint": "echo \"(lint placeholder)\"",
-    "typecheck": "echo \"(typecheck placeholder)\"",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"(no tests)\" && exit 0",
-    "clean": "echo \"(nothing to clean)\""
+    "clean": "rm -rf .next"
+  },
+  "dependencies": {
+    "next": "^14.2.18",
+    "nextra": "^3.3.1",
+    "nextra-theme-docs": "^3.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^18.3.5",
+    "typescript": "^5.7.2"
   }
 }

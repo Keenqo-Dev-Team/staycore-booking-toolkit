@@ -1,0 +1,77 @@
+# Quickstart — CLI npx
+
+> Le scaffolder fonctionne partout où Node 20+ tourne : terminal local, CI, scripts, agents IA.
+
+## Mode interactif
+
+```bash
+npx create-staycore-site@latest mon-site
+```
+
+Tu obtiens un assistant qui te pose 4 questions :
+
+1. **Project name** — le nom du dossier (kebab-case)
+2. **Org slug** — le slug de ton organisation Stay'Core
+3. **Brand display name** — le nom affiché
+4. **Visual preset** — au choix : `love-room`, `chateau-luxe`, `gite-nature`, `city-business`
+
+Puis le CLI :
+- Vérifie l'org via l'API publique
+- Récupère tes propriétés (live)
+- Génère le code (Vite + React + TS + Tailwind + SDK)
+- Lance `npm install`
+- Initialise un dépôt git avec un premier commit
+
+## Mode non-interactif
+
+Pour CI / scripts / agents IA :
+
+```bash
+npx create-staycore-site@latest mon-site \
+  --org-slug=stayflex-immo \
+  --preset=love-room \
+  --brand-name="Les Suites Bisous" \
+  --brand-tagline="Suites d'exception pour parenthèses romantiques." \
+  --non-interactive
+```
+
+## Options complètes
+
+| Option | Description |
+|---|---|
+| `<name>` | Dossier projet (positionnel) |
+| `--org-slug=<slug>` | Slug de l'organisation Stay'Core (**requis**) |
+| `--preset=<id>` | `love-room` (défaut) / `chateau-luxe` / `gite-nature` / `city-business` |
+| `--brand-name="..."` | Nom de marque affiché |
+| `--brand-tagline="..."` | Tagline (hero + meta description) |
+| `--api-base-url=<url>` | Override de la base URL API (défaut : `https://api.stay-core.com/api/v1`) |
+| `--no-install` | Skip `npm install` |
+| `--no-git` | Skip `git init` |
+| `--non-interactive`, `-y` | Pas de prompts, échec si paramètre requis manquant |
+| `--help`, `-h` | Aide |
+| `--version`, `-v` | Version |
+
+## Démarrer le projet
+
+```bash
+cd mon-site
+npm run dev
+```
+
+Le serveur Vite démarre sur http://localhost:5173.
+
+## Builder pour la prod
+
+```bash
+npm run build
+npm run preview  # smoke test du build
+```
+
+Le build est ~200 kB JS gzip + 18 kB CSS gzip — léger pour un site marketing complet.
+
+## Étapes suivantes
+
+- [Personnaliser tes propriétés](/sdk) — éditer `src/data/properties.ts`
+- [Ajuster le preset](/presets) — modifier les CSS variables dans `src/index.css`
+- [Déployer sur Vercel](/deploy)
+- [Brancher ton custom domain](/custom-domain) pour que CORS l'autorise

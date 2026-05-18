@@ -1,0 +1,44 @@
+---
+title: STAYCORE Direct Booking Toolkit
+---
+
+# STAYCORE Direct Booking Toolkit
+
+Scaffolde un site web de **réservation directe** sur-mesure intégré au PMS [Stay'Core](https://stay-core.com) en quelques secondes.
+
+> Trois outils, une seule API — choisis celui qui correspond à ton workflow.
+
+## Trois façons de partir
+
+| Méthode | Pour qui | Quickstart |
+|---|---|---|
+| 🤖 **Claude Code** | Tu utilises Claude Code au quotidien | [Quickstart](/quickstart-claude-code) |
+| 📦 **CLI npx** | Tu veux un boilerplate, sans agent IA | [Quickstart](/quickstart-cli) |
+| 🧠 **Cursor / Codex** | Tu utilises un autre assistant IA | [Quickstart](/quickstart-cursor-codex) |
+
+## Ce que tu obtiens
+
+- Un projet **Vite + React + TypeScript + Tailwind** prêt à déployer
+- **Moteur de réservation Stay'Core** déjà branché : calendrier, prix, Stripe checkout, cautions
+- **4 presets visuels** prêts à l'emploi : love-room, château luxe, gîte nature, city business
+- **GA4 Consent Mode v2** RGPD-compliant
+- **JSON-LD `LodgingBusiness`** et meta OG sur chaque fiche
+- Tes vraies propriétés **pré-remplies** depuis le PMS au moment du scaffold
+
+## Architecture
+
+```
+@staycore/booking-sdk        ← Client TypeScript + hooks React (npm)
+create-staycore-site         ← CLI de scaffolding (npx)
+staycore-direct-booking      ← Skill Claude Code (marketplace + git)
+/api/v1/book/{org_slug}/*    ← API publique versionnée, contrat figé
+```
+
+Tous les chemins consomment la même API publique versionnée. Le contrat est gelé : aucune évolution breaking sans bump majeur du SDK.
+
+## Liens rapides
+
+- 📦 [`@staycore/booking-sdk`](https://www.npmjs.com/package/@staycore/booking-sdk) sur npm
+- 📦 [`create-staycore-site`](https://www.npmjs.com/package/create-staycore-site) sur npm
+- 🐙 [Repo GitHub](https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit)
+- 🛠️ [Stay'Core PMS](https://stay-core.com)
