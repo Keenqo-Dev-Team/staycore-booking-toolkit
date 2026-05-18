@@ -1,29 +1,56 @@
 ---
-title: STAYCORE Direct Booking Toolkit
+title: Réservation directe Stay'Core
+description: Le toolkit officiel pour créer un site de réservation directe connecté au PMS Stay'Core. SDK TypeScript, CLI npx, Skill Claude Code. Sans commission Airbnb / Booking.
 ---
 
-# STAYCORE Direct Booking Toolkit
+# Réservation directe Stay’Core
 
-Scaffolde un site web de **réservation directe** sur-mesure intégré au PMS [Stay'Core](https://stay-core.com) en quelques secondes.
+> Le **toolkit officiel** pour créer un site de **réservation directe** connecté au PMS **Stay’Core** en quelques secondes. SDK TypeScript, CLI `npx`, Skill Claude Code. Zéro commission Airbnb / Booking, paiement Stripe natif, calendrier temps réel.
 
-> Trois outils, une seule API — choisis celui qui correspond à ton workflow.
+<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', margin: '1rem 0' }}>
+  <a href="https://www.npmjs.com/package/@staycore/booking-sdk" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/v/@staycore/booking-sdk?label=%40staycore%2Fbooking-sdk&color=C9A84C" alt="@staycore/booking-sdk" />
+  </a>
+  <a href="https://www.npmjs.com/package/create-staycore-site" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/v/create-staycore-site?label=create-staycore-site&color=C9A84C" alt="create-staycore-site" />
+  </a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT" />
+</div>
 
-## Trois façons de partir
+## Trois façons de créer ton site de réservation directe
 
 | Méthode | Pour qui | Quickstart |
 |---|---|---|
-| 🤖 **Claude Code** | Tu utilises Claude Code au quotidien | [Quickstart](/quickstart-claude-code) |
-| 📦 **CLI npx** | Tu veux un boilerplate, sans agent IA | [Quickstart](/quickstart-cli) |
-| 🧠 **Cursor / Codex** | Tu utilises un autre assistant IA | [Quickstart](/quickstart-cursor-codex) |
+| 🤖 **Claude Code Skill** | Tu utilises Claude Code au quotidien | [Quickstart](/quickstart-claude-code) |
+| 📦 **CLI `npx create-staycore-site`** | Tu veux un boilerplate, sans agent IA | [Quickstart](/quickstart-cli) |
+| 🧠 **Cursor / Codex / Windsurf** | Tu utilises un autre assistant IA | [Quickstart](/quickstart-cursor-codex) |
 
-## Ce que tu obtiens
+## Pourquoi un site de réservation directe Stay’Core ?
 
-- Un projet **Vite + React + TypeScript + Tailwind** prêt à déployer
-- **Moteur de réservation Stay'Core** déjà branché : calendrier, prix, Stripe checkout, cautions
-- **4 presets visuels** prêts à l'emploi : love-room, château luxe, gîte nature, city business
+Quand un voyageur réserve via **Airbnb** ou **Booking.com**, ces plateformes te prélèvent **15 à 20 % de commission**. Avec un site de réservation directe connecté à Stay’Core, le voyageur paye le même prix → mais **tu gardes 100 % du montant**.
+
+- 🎯 **Zéro commission** OTA (Airbnb, Booking.com, Expedia)
+- 💳 **Paiement Stripe** intégré (cartes, Apple Pay, Google Pay)
+- 📅 **Calendrier temps réel** synchronisé avec ton calendrier Stay’Core et tous tes channels
+- 🛡️ **Caution Stripe Connect** pré-autorisée
+- 📧 **Email de confirmation** automatique + suivi de réservation par token
+- 🧪 **Mode test** pour valider ton flow avant la mise en prod
+- 🎨 **4 presets** visuels (love-room, château luxe, gîte nature, city business) ou direction artistique 100 % custom
+
+## Ce que tu obtiens en `npx create-staycore-site`
+
+```bash
+npx create-staycore-site@latest mon-site \
+  --org-slug=mon-org \
+  --preset=love-room
+```
+
+- Un projet **Vite + React + TypeScript + Tailwind** prêt à déployer sur Vercel / Netlify / Cloudflare Pages
+- Le **moteur de réservation Stay’Core** déjà branché (calendrier, prix dynamique, Stripe checkout, paiement caution)
+- Tes **vraies propriétés** pré-remplies depuis le PMS au moment du scaffold (live API)
 - **GA4 Consent Mode v2** RGPD-compliant
-- **JSON-LD `LodgingBusiness`** et meta OG sur chaque fiche
-- Tes vraies propriétés **pré-remplies** depuis le PMS au moment du scaffold
+- **JSON-LD `LodgingBusiness`** + meta Open Graph sur chaque fiche
+- **Banner mode test** automatique tant que `test_mode_enabled` est ON
 
 ## Architecture
 
@@ -34,11 +61,16 @@ staycore-direct-booking      ← Skill Claude Code (marketplace + git)
 /api/v1/book/{org_slug}/*    ← API publique versionnée, contrat figé
 ```
 
-Tous les chemins consomment la même API publique versionnée. Le contrat est gelé : aucune évolution breaking sans bump majeur du SDK.
+Tous les chemins consomment **la même API publique versionnée** `https://api.stay-core.com/api/v1/book/{slug}/*`. Le contrat est gelé : aucune évolution breaking sans bump majeur du SDK, garanti par un test PHPUnit qui fail le CI au moindre changement.
 
 ## Liens rapides
 
 - 📦 [`@staycore/booking-sdk`](https://www.npmjs.com/package/@staycore/booking-sdk) sur npm
 - 📦 [`create-staycore-site`](https://www.npmjs.com/package/create-staycore-site) sur npm
 - 🐙 [Repo GitHub](https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit)
-- 🛠️ [Stay'Core PMS](https://stay-core.com)
+- 🛠️ [Stay’Core PMS](https://stay-core.com) — le PMS pour conciergeries et locations courte durée
+- 💬 [Issues GitHub](https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/issues)
+
+## Mots-clés associés
+
+Réservation directe Stay’Core, moteur de réservation conciergerie, site web location courte durée sans commission, SDK Stay’Core, API publique Stay’Core, scaffolder site Vite React Stay’Core, Claude Code réservation directe, Stripe Connect location vacances, alternative à Booking et Airbnb, channel manager direct booking.
