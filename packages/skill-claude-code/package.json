@@ -1,0 +1,14 @@
+{
+  "name": "@staycore/skill-claude-code",
+  "version": "0.0.0",
+  "description": "Claude Code Skill to scaffold STAYCORE direct booking websites",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "echo \"(no build needed — markdown skill)\"",
+    "lint": "echo \"(lint placeholder)\"",
+    "typecheck": "echo \"(no typecheck)\"",
+    "test": "echo \"(no tests yet)\" && exit 0",
+    "clean": "echo \"(nothing to clean)\""
+  }
+}

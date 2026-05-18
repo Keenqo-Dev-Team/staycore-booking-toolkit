@@ -1,0 +1,14 @@
+{
+  "name": "@staycore/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end tests for the STAYCORE Direct Booking Toolkit",
+  "license": "MIT",
+  "scripts": {
+    "build": "echo \"(no build)\"",
+    "lint": "echo \"(lint placeholder)\"",
+    "typecheck": "echo \"(typecheck placeholder)\"",
+    "test": "echo \"(no tests yet)\" && exit 0",
+    "clean": "echo \"(nothing to clean)\""
+  }
+}

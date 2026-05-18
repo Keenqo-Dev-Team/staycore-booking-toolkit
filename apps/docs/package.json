@@ -1,0 +1,15 @@
+{
+  "name": "@staycore/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Public documentation site for the STAYCORE Direct Booking Toolkit",
+  "license": "MIT",
+  "scripts": {
+    "build": "echo \"(docs site — Nextra, to be added in Phase 6)\"",
+    "dev": "echo \"(docs dev — to be added in Phase 6)\"",
+    "lint": "echo \"(lint placeholder)\"",
+    "typecheck": "echo \"(typecheck placeholder)\"",
+    "test": "echo \"(no tests)\" && exit 0",
+    "clean": "echo \"(nothing to clean)\""
+  }
+}
