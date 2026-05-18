@@ -60,18 +60,46 @@ function StripeForm({
       return;
     }
 
-    if (paymentIntent?.status === 'succeeded') {
+    // Stripe peut renvoyer plusieurs statuts terminaux. Toujours afficher
+    // quelque chose pour ne pas rester figé sur « Paiement en cours… ».
+    const status = paymentIntent?.status;
+
+    if (status === 'succeeded') {
       try {
         await pms.booking.confirm(bookingToken);
         onConfirmed();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Confirmation impossible.');
+        setError(err instanceof Error
+          ? `Le paiement a réussi mais la confirmation côté serveur a échoué : ${err.message}`
+          : 'Confirmation impossible — contacte le support avec ton numéro de réservation.');
       } finally {
         setSubmitting(false);
       }
-    } else {
-      setSubmitting(false);
+      return;
     }
+
+    if (status === 'processing') {
+      setError('Ta banque traite encore le paiement. Tu recevras un email de confirmation dès qu’il sera validé.');
+      setSubmitting(false);
+      return;
+    }
+
+    if (status === 'requires_action' || status === 'requires_confirmation') {
+      setError('Une authentification supplémentaire est demandée par ta banque. Suis les instructions Stripe, puis réessaie.');
+      setSubmitting(false);
+      return;
+    }
+
+    if (status === 'requires_payment_method') {
+      setError('La carte a été refusée. Vérifie les informations ou essaie un autre moyen de paiement.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Statut inattendu (ex. "canceled" ou autre nouveau status Stripe) — on
+    // évite explicitement de laisser le bouton figé.
+    setError(`Paiement en statut inattendu (${status ?? 'inconnu'}). Réessaie ou contacte le support.`);
+    setSubmitting(false);
   };
 
   return (

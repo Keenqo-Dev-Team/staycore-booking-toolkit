@@ -1,5 +1,27 @@
 # @staycore/booking-sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- 3 bugfixes critiques détectés au premier test E2E du toolkit avec un vrai org (STAYFLEX IMMO, 27 properties dont 2 "Studio Soleil") :
+
+  **SDK — `AvailabilityCalendar` type**
+
+  L'API renvoie `data: [...]` (tableau plat de jours) — pas `data: { property_id, days: [...] }` comme le typait le SDK v0.2. Le template crashait avec `Cannot read properties of undefined (reading 'forEach')` sur `availability.data?.days` au mount du `<BookingForm>` à `/reserver`.
+
+  Fix : `AvailabilityCalendar` est maintenant l'alias direct `AvailabilityCalendarDay[]`. Le type `AvailabilityCalendarLegacy` reste exporté en `@deprecated` pour ne pas casser brutalement les consommateurs qui l'auraient déjà importé. Ajout du champ `min_stay?: number` (renvoyé par l'API mais absent du type).
+
+  Le `templates/base/src/components/booking/BookingForm.tsx` itère désormais directement sur `availability.data` après `Array.isArray()` guard.
+
+  **CLI — dedupe des slugs de properties**
+
+  Si deux properties slugifient en une même chaîne (deux "Studio Soleil"), React levait un warning `Encountered two children with the same key` et le routing `/properties/{slug}` était ambigu. Le scaffolder ajoute désormais un suffixe `-2`, `-3`, … sur les duplicates.
+
+  **Template — favicon par défaut**
+
+  Le `<link rel="icon">` n'existait pas dans `index.html` → Chrome demandait `/favicon.ico` et émettait un 404. Ajout du `favicon.svg` Stay'Core dans `public/` + `<link>` dans le `<head>`.
+
 ## 0.2.1
 
 ### Patch Changes

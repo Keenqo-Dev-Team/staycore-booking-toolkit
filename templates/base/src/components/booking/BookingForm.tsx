@@ -27,10 +27,13 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
 
   const availability = useAvailability(propertyId);
   const availabilityMap = useMemo(() => {
-    const map: Record<string, NonNullable<typeof availability.data>['days'][number]> = {};
-    availability.data?.days.forEach((d) => {
-      map[d.date] = d;
-    });
+    const map: Record<string, NonNullable<typeof availability.data>[number]> = {};
+    // The SDK exposes the calendar as a flat array of AvailabilityCalendarDay.
+    if (Array.isArray(availability.data)) {
+      availability.data.forEach((d) => {
+        map[d.date] = d;
+      });
+    }
     return map;
   }, [availability.data]);
 

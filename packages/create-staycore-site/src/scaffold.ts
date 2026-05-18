@@ -194,14 +194,21 @@ async function injectFonts(htmlFile: string, fonts: string[]): Promise<void> {
 }
 
 async function rewriteProperties(file: string, properties: Property[]): Promise<void> {
+  // Dedupe slugs : si deux properties slugifient pareil (ex. deux "Studio
+  // Soleil"), on suffixe les duplicats par -2, -3, … sinon React voit deux
+  // children avec la même key et le routing /properties/{slug} est ambigu.
+  const slugCounts = new Map<string, number>();
   const items = properties.map((p) => {
-    const slug =
+    const baseSlug =
       (p.name as string)
         .toLowerCase()
         .normalize('NFD')
         .replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '') || `property-${p.id}`;
+    const occurrence = slugCounts.get(baseSlug) ?? 0;
+    slugCounts.set(baseSlug, occurrence + 1);
+    const slug = occurrence === 0 ? baseSlug : `${baseSlug}-${occurrence + 1}`;
     const heroImage =
       p.image_url ?? 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1600&q=80';
     return `  {

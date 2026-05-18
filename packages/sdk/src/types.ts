@@ -80,10 +80,21 @@ export type AvailabilityCalendarDay = {
   available: boolean;
   /** Reason if unavailable: 'booked' | 'blocked' | 'min_stay' | 'past' | … */
   reason?: string;
+  /** Nightly price for this date (in the org currency, plain number). */
   price?: number;
+  /** Minimum nights required to start a stay on this date. */
+  min_stay?: number;
 };
 
-export type AvailabilityCalendar = {
+/**
+ * The API returns the calendar as a flat array of days at `data` top-level
+ * (not wrapped in `{ days: [...] }`). Mirror that shape directly so consumers
+ * don't have to double-unwrap.
+ */
+export type AvailabilityCalendar = AvailabilityCalendarDay[];
+
+/** @deprecated kept for back-compat of v0.1 consumers — prefer AvailabilityCalendar */
+export type AvailabilityCalendarLegacy = {
   property_id: number;
   days: AvailabilityCalendarDay[];
   /** Months range covered by the calendar (YYYY-MM). */
