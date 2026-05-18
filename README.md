@@ -62,7 +62,7 @@ e2e                           → Tests bout-en-bout (scaffold + build + smoke)
 
 ## Liens
 
-- 📖 **Documentation complète** : https://docs.stay-core.com/booking-toolkit *(en cours)*
+- 📖 **Documentation complète** : https://staycore-booking-toolkit-docs.vercel.app *(en attente DNS docs.stay-core.com)*
 - 🐛 **Issues** : https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/issues
 - 🛠️ **Stay'Core PMS** : https://stay-core.com
 
