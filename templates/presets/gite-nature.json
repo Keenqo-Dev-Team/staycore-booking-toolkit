@@ -1,0 +1,25 @@
+{
+  "id": "gite-nature",
+  "name": "Gîte Nature",
+  "description": "Authentique, chaleureux, vert. Palette terre/vert sauge, typographie ronde.",
+  "css": {
+    "--brand-color": "#4A6B3E",
+    "--brand-color-light": "#7B9B6E",
+    "--brand-color-dark": "#2F4A26",
+    "--brand-color-contrast": "#ffffff",
+    "--font-display": "'Lora', serif",
+    "--font-sans": "'Source Sans 3', system-ui, sans-serif"
+  },
+  "fonts": [
+    "https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+  ],
+  "copy": {
+    "brand_tagline": "Gîtes & cabanes au cœur de la nature. Évadez-vous, sans commission, en direct des propriétaires.",
+    "hero_image": "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1920&q=80",
+    "home_stats": [
+      { "value": "100 %", "label": "Local", "description": "Hébergements détenus et entretenus par leurs propriétaires." },
+      { "value": "Eco", "label": "responsable", "description": "Énergies douces, produits locaux, démarche zéro déchet." },
+      { "value": "Direct", "label": "sans commission", "description": "Plus économique pour vous, plus juste pour l'hôte." }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Filled by the active preset (love-room, chateau-luxe, gite-nature, city-business).
+       Override these in src/preset.css if you want a fully custom look. */
+    --brand-color: #C9A84C;
+    --brand-color-light: #E0C57A;
+    --brand-color-dark: #8E7530;
+    --brand-color-contrast: #ffffff;
+    --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+}

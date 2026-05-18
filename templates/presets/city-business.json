@@ -1,0 +1,25 @@
+{
+  "id": "city-business",
+  "name": "City Business",
+  "description": "Urbain, sobre, efficace. Palette bleu nuit/blanc, typographie moderne.",
+  "css": {
+    "--brand-color": "#1E3A8A",
+    "--brand-color-light": "#3B5EBF",
+    "--brand-color-dark": "#14275A",
+    "--brand-color-contrast": "#ffffff",
+    "--font-display": "'Manrope', system-ui, sans-serif",
+    "--font-sans": "'Manrope', system-ui, sans-serif"
+  },
+  "fonts": [
+    "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+  ],
+  "copy": {
+    "brand_tagline": "Appartements meublés pour voyageurs d'affaires. Check-in autonome, WiFi pro, espace de travail.",
+    "hero_image": "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1920&q=80",
+    "home_stats": [
+      { "value": "Check-in", "label": "24/7", "description": "Arrivée autonome via code ou serrure connectée." },
+      { "value": "Facture", "label": "pro fournie", "description": "Reçu détaillé pour notes de frais et déclaration." },
+      { "value": "WiFi", "label": "fibre dédiée", "description": "Connexion stable et rapide, idéale visios et VPN." }
+    ]
+  }
+}

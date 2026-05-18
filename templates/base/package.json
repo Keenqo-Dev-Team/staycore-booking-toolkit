@@ -2,14 +2,34 @@
   "name": "@staycore/template-base",
   "version": "0.0.0",
   "private": true,
-  "description": "Canonical Vite + React + TS + Tailwind template wired to @staycore/booking-sdk",
+  "description": "Canonical Vite + React + TS + Tailwind template wired to @staycore/booking-sdk — consumed by create-staycore-site and the staycore-direct-booking Claude Code Skill.",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "echo \"(template is copied by create-staycore-site, no build here)\"",
-    "lint": "echo \"(lint placeholder)\"",
-    "typecheck": "echo \"(typecheck placeholder)\"",
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "echo \"(no lint configured in template — scaffold-time concern)\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "echo \"(no tests)\" && exit 0",
-    "clean": "echo \"(nothing to clean)\""
+    "clean": "rm -rf dist .vite node_modules/.vite"
+  },
+  "dependencies": {
+    "@staycore/booking-sdk": "workspace:^",
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.1.0",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.7.2",
+    "vite": "^7.1.10"
   }
 }

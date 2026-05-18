@@ -29,7 +29,8 @@
     "dev": "tsc -p tsconfig.json --watch",
     "lint": "echo \"(lint placeholder)\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "echo \"(no tests yet)\" && exit 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
@@ -41,7 +42,8 @@
   "devDependencies": {
     "@types/react": "^18.3.5",
     "react": "^18.3.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
   },
   "publishConfig": {
     "access": "public"
