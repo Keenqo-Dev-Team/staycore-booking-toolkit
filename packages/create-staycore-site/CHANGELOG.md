@@ -1,5 +1,23 @@
 # create-staycore-site
 
+## 0.2.3
+
+### Patch Changes
+
+- Fix UX écran final quand le backend bascule en bypass Stripe (org en test mode + clé `pk_live_*`).
+
+  **Avant 0.2.3** : le template tombait dans la branche `payment_mode === 'request'` qui affichait _« Demande envoyée — nous reviendrons vers vous rapidement par email »_, suggérant à tort qu'on attendait une validation admin. En réalité la résa était déjà confirmée, le mail déjà envoyé, les scénarios déjà déclenchés.
+
+  **Après 0.2.3** :
+
+  - SDK : `CheckoutResponse` expose deux nouveaux champs optionnels : `auto_confirmed_for_test?: boolean` et `reservation_id?: number`.
+  - Template : si `auto_confirmed_for_test === true`, on saute directement à l'écran `confirmation` (skip Stripe Elements, skip écran "Demande envoyée"). L'écran affiche un badge ambre **🧪 Réservation de test — aucun paiement n'a été effectué** + un titre adapté + un paragraphe explicatif détaillant ce qui a tourné (mail, scénarios, code d'accès) et ce qui a été skip (paiement, lock calendrier).
+
+  Non-breaking : les anciens consommateurs qui n'utilisent pas le test mode voient zéro changement.
+
+- Updated dependencies
+  - @staycore/booking-sdk@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
