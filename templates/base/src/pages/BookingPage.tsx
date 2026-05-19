@@ -27,6 +27,16 @@ export function BookingPage({ onNavigate }: Props) {
 
   const handleCheckoutCreated = (response: CheckoutResponse) => {
     setCheckout(response);
+
+    // Test mode + clé Stripe live : le backend a auto-confirmé la résa
+    // (pas de PaymentIntent à valider). On va direct à l'écran "confirmation"
+    // qui affiche le bon message — pas "Demande envoyée" qui suggérerait
+    // une attente de validation manuelle.
+    if (response.auto_confirmed_for_test) {
+      setStep('confirmation');
+      return;
+    }
+
     if (response.payment_mode === 'request') {
       setStep('request');
       return;
@@ -86,9 +96,18 @@ export function BookingPage({ onNavigate }: Props) {
 
         {step === 'confirmation' && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-            <h2 className="font-display text-3xl mb-3">Réservation confirmée !</h2>
+            {checkout?.is_test && (
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-4 py-1.5 text-xs font-semibold text-amber-800">
+                🧪 Réservation de test — aucun paiement n'a été effectué
+              </div>
+            )}
+            <h2 className="font-display text-3xl mb-3">
+              {checkout?.is_test ? 'Réservation de test confirmée !' : 'Réservation confirmée !'}
+            </h2>
             <p className="text-gray-700 mb-6">
-              Un email de confirmation vient de partir vers la boîte renseignée.
+              {checkout?.is_test
+                ? "Le mode test est activé sur ce moteur de réservation : aucune nuit n'a été bloquée, aucun paiement n'a eu lieu, mais le flow complet a tourné (email de confirmation, scénarios automatiques, génération code d'accès…)."
+                : 'Un email de confirmation vient de partir vers la boîte renseignée.'}
             </p>
             {checkout?.booking_token && (
               <p className="text-sm text-gray-600 mb-6">

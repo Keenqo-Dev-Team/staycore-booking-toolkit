@@ -161,6 +161,15 @@ export type CheckoutResponse = {
   currency?: string;
   /** True if the booking was created against an engine in test mode. */
   is_test?: boolean;
+  /**
+   * True when test_mode_enabled + the org's Stripe key is live: the backend
+   * skipped PaymentIntent creation entirely and auto-confirmed the booking
+   * server-side. The client should jump straight to the confirmation screen
+   * (no Stripe Elements, no "request" pending screen).
+   */
+  auto_confirmed_for_test?: boolean;
+  /** Reservation id created when auto_confirmed_for_test is true. */
+  reservation_id?: number;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
