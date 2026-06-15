@@ -1,6 +1,6 @@
 {
   "name": "create-staycore-site",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Scaffold a direct booking website wired to the Stay'Core PMS in seconds.",
   "license": "MIT",
   "author": "Keenqo <david@keenqo.fr>",

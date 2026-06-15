@@ -81,7 +81,7 @@ Tous les endpoints sont sans authentification, préfixe `/api/v1/book/{org_slug}
 | GET | `/api/v1/book/{slug}` | Config org + clé Stripe publique |
 | GET | `/api/v1/book/{slug}/properties` | Liste des biens actifs |
 | GET | `/api/v1/book/{slug}/properties/{id}/availability` | Calendrier mensuel |
-| GET | `/api/v1/book/{slug}/properties/{id}/price?check_in=&check_out=&guests_count=` | Prix + dispo |
+| GET | `/api/v1/book/{slug}/properties/{id}/price?check_in=&check_out=&guests_count=&adults_count=&children_count=` | Prix + dispo (`adults_count`/`children_count` optionnels → taxe de séjour conforme, mineurs exonérés ; réponse : `tourism_tax` + `tourism_tax_detail`) |
 | POST | `/api/v1/book/{slug}/checkout` | Crée résa + PaymentIntent Stripe |
 | POST | `/api/v1/book/{slug}/booking/{token}/confirm` | Confirme paiement |
 | GET | `/api/v1/book/{slug}/booking/{token}` | Suivi réservation |

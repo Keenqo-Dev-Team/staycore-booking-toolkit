@@ -110,7 +110,28 @@ export type PriceQuoteRequest = {
   check_in: string; // YYYY-MM-DD
   check_out: string; // YYYY-MM-DD
   guests_count?: number;
+  /** Adultes assujettis à la taxe de séjour (mineurs exonérés). */
+  adults_count?: number;
+  /** Enfants (-18 ans), exonérés de taxe de séjour. */
+  children_count?: number;
   coupon_code?: string;
+};
+
+/**
+ * Détail du calcul de la taxe de séjour renvoyé par le backend (mode/régime,
+ * tarif par personne et par nuit, plafond appliqué, etc.). Informatif —
+ * pratique pour afficher « X €/pers/nuit × N adultes × P nuits ».
+ */
+export type TourismTaxDetail = {
+  mode?: 'flat' | 'auto' | 'manual';
+  source?: string;
+  regime?: 'reel' | 'proportionnel';
+  per_person_night?: number;
+  percentage?: number;
+  cap_applied?: boolean;
+  taxable_persons?: number;
+  nights?: number;
+  [key: string]: unknown;
 };
 
 export type PriceQuote = {
@@ -121,6 +142,7 @@ export type PriceQuote = {
   cleaning_fee?: number;
   service_fee?: number;
   tourism_tax?: number;
+  tourism_tax_detail?: TourismTaxDetail;
   discount?: number;
   coupon?: {
     code: string;
@@ -144,6 +166,10 @@ export type CheckoutRequest = {
   check_in: string;
   check_out: string;
   guests_count: number;
+  /** Adultes assujettis à la taxe de séjour (mineurs exonérés). */
+  adults_count?: number;
+  /** Enfants (-18 ans), exonérés de taxe de séjour. */
+  children_count?: number;
   message?: string;
   locale?: 'fr' | 'en';
   coupon_code?: string;

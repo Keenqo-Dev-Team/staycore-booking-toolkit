@@ -44,6 +44,28 @@ export function DatePickerCalendar({ checkIn, checkOut, onChange, availability, 
     return new Date(base.getFullYear(), base.getMonth(), 1);
   });
 
+  // Une réservation se compte en NUITS : `available === false` signifie que la
+  // NUIT commençant ce jour-là est occupée. Un jour d'arrivée d'une autre résa
+  // peut donc rester une date de DÉPART valide pour la nôtre (rotation le matin).
+  const isNightBooked = (iso: string) => availability?.[iso]?.available === false;
+
+  // Mode sélection : on choisit le départ dès qu'une arrivée est posée sans départ.
+  const selectingCheckout = !!checkIn && !checkOut;
+
+  // Départ maximal sélectionnable = première nuit occupée STRICTEMENT après
+  // l'arrivée (incluse, car on libère le logement ce matin-là). Au-delà, il
+  // faudrait occuper une nuit déjà réservée. null = aucune contrainte en vue.
+  const maxCheckout = useMemo(() => {
+    if (!selectingCheckout || !checkIn) return null;
+    const start = new Date(checkIn);
+    for (let i = 1; i <= 366; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      if (isNightBooked(ymd(d))) return ymd(d);
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectingCheckout, checkIn, availability]);
+
   const handleClick = (date: Date) => {
     const iso = ymd(date);
     if (date < today) return;
@@ -94,12 +116,24 @@ export function DatePickerCalendar({ checkIn, checkOut, onChange, availability, 
           const iso = ymd(d);
           const inCurrentMonth = d.getMonth() === cursor.getMonth();
           const isPast = d < today;
-          const dayAvail = availability?.[iso];
-          const isBooked = dayAvail?.available === false;
+          const isBooked = isNightBooked(iso);
           const isCheckIn = iso === checkIn;
           const isCheckOut = iso === checkOut;
           const isInRange = !!checkIn && !!checkOut && iso > checkIn && iso < checkOut;
-          const disabled = isPast || isBooked || !inCurrentMonth;
+
+          let disabled: boolean;
+          if (selectingCheckout) {
+            // Candidat départ : après l'arrivée, jusqu'à la 1re nuit occupée
+            // incluse (cette case occupée reste cliquable comme départ → nuit
+            // orpheline réservable). Sinon on peut redémarrer sur un jour libre.
+            const validCheckout =
+              !isPast && inCurrentMonth && iso > checkIn && (maxCheckout === null || iso <= maxCheckout);
+            const canRestart = !isPast && inCurrentMonth && !isBooked && iso <= checkIn;
+            disabled = !(validCheckout || canRestart);
+          } else {
+            // Sélection de l'arrivée : une nuit occupée n'est pas un point de départ.
+            disabled = isPast || isBooked || !inCurrentMonth;
+          }
 
           return (
             <button

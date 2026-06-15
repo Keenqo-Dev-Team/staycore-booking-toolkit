@@ -21,9 +21,11 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
     guest_phone: '',
     check_in: '',
     check_out: '',
-    guests_count: 2,
+    adults_count: 2,
+    children_count: 0,
     message: '',
   });
+  const guestsCount = form.adults_count + form.children_count;
 
   const availability = useAvailability(propertyId);
   const availabilityMap = useMemo(() => {
@@ -43,10 +45,12 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
         ? {
             check_in: form.check_in,
             check_out: form.check_out,
-            guests_count: form.guests_count,
+            guests_count: guestsCount,
+            adults_count: form.adults_count,
+            children_count: form.children_count,
           }
         : null,
-    [form.check_in, form.check_out, form.guests_count],
+    [form.check_in, form.check_out, guestsCount, form.adults_count, form.children_count],
   );
   const price = usePrice(propertyId, priceParams);
 
@@ -81,7 +85,9 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
       guest_phone: form.guest_phone.trim() || undefined,
       check_in: form.check_in,
       check_out: form.check_out,
-      guests_count: form.guests_count,
+      guests_count: guestsCount,
+      adults_count: form.adults_count,
+      children_count: form.children_count,
       message: form.message.trim() || undefined,
       locale: 'fr',
     };
@@ -128,19 +134,36 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre de voyageurs</label>
-        <select
-          value={form.guests_count}
-          onChange={(e) => setForm((f) => ({ ...f, guests_count: Number(e.target.value) }))}
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent"
-        >
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <option key={n} value={n}>
-              {n} {n > 1 ? 'voyageurs' : 'voyageur'}
-            </option>
-          ))}
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Adultes</label>
+          <select
+            value={form.adults_count}
+            onChange={(e) => setForm((f) => ({ ...f, adults_count: Number(e.target.value) }))}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent"
+          >
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <option key={n} value={n}>
+                {n} {n > 1 ? 'adultes' : 'adulte'}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Enfants (-18 ans)</label>
+          <select
+            value={form.children_count}
+            onChange={(e) => setForm((f) => ({ ...f, children_count: Number(e.target.value) }))}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent"
+          >
+            {[0, 1, 2, 3, 4, 5].map((n) => (
+              <option key={n} value={n}>
+                {n} {n > 1 ? 'enfants' : 'enfant'}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">Exonérés de taxe de séjour.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

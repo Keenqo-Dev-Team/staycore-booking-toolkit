@@ -9,7 +9,7 @@ export function usePrice(
   const client = useStayCore();
   const enabled = propertyId != null && params != null && params.check_in && params.check_out;
   const key = enabled
-    ? `price:${client.orgSlug}:${propertyId}:${params!.check_in}:${params!.check_out}:${params!.guests_count ?? ''}:${params!.coupon_code ?? ''}`
+    ? `price:${client.orgSlug}:${propertyId}:${params!.check_in}:${params!.check_out}:${params!.guests_count ?? ''}:${params!.adults_count ?? ''}:${params!.children_count ?? ''}:${params!.coupon_code ?? ''}`
     : null;
   return useAsync<PriceQuote>(
     () => client.price.compute(propertyId as number, params as PriceQuoteRequest),

@@ -56,8 +56,8 @@ Endpoints sans auth, base URL : `https://api.stay-core.com/api/v1/book/{slug}`
 - `GET /` → config org + Stripe public key
 - `GET /properties` → liste des biens
 - `GET /properties/{id}/availability` → calendrier
-- `GET /properties/{id}/price?check_in=&check_out=&guests_count=` → prix
-- `POST /checkout` → résa + Stripe PaymentIntent (corps : `{ property_id, guest_name, guest_email, check_in, check_out, guests_count }`)
+- `GET /properties/{id}/price?check_in=&check_out=&guests_count=&adults_count=&children_count=` → prix (adults_count/children_count optionnels : taxe de séjour conforme, mineurs exonérés)
+- `POST /checkout` → résa + Stripe PaymentIntent (corps : `{ property_id, guest_name, guest_email, check_in, check_out, guests_count, adults_count?, children_count? }`)
 - `POST /booking/{token}/confirm` → confirme paiement Stripe
 - `GET /booking/{token}` → statut réservation
 - `POST /validate-coupon` → valider code promo

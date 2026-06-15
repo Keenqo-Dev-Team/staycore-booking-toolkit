@@ -1,5 +1,32 @@
 # create-staycore-site
 
+## 0.3.0
+
+### Minor Changes
+
+- Taxe de séjour conforme (par personne / nuit, mineurs exonérés) + nuit orpheline réservable.
+
+  **SDK (`@staycore/booking-sdk`)**
+
+  - `PriceQuoteRequest` et `CheckoutRequest` acceptent deux champs optionnels : `adults_count?` (adultes assujettis) et `children_count?` (enfants -18 ans, exonérés). Transmis tels quels au backend → calcul de taxe de séjour conforme côté serveur.
+  - `PriceQuote` expose `tourism_tax_detail?` (nouveau type `TourismTaxDetail` : mode/régime, tarif par personne et par nuit, plafond appliqué…) pour afficher le détail du calcul.
+  - `usePrice` recalcule désormais quand `adults_count` / `children_count` changent.
+
+  Non-breaking : les consommateurs qui n'envoient que `guests_count` voient zéro changement (le backend compte alors tout le monde comme adulte).
+
+  **create-staycore-site (template de base)**
+
+  - Formulaire de réservation : le sélecteur unique « voyageurs » devient **Adultes + Enfants (-18 ans)** ; les compteurs sont propagés au prix et au checkout.
+  - Calendrier (`DatePickerCalendar`) : correction de la **nuit orpheline** — un jour d'arrivée d'une autre réservation est désormais cliquable comme **date de départ** (raisonnement en nuits, type Airbnb). On peut donc réserver une nuit isolée entre deux séjours. Bonus : impossible de sélectionner un départ qui enjambe une nuit déjà occupée (plus d'erreur backend trompeuse).
+  - `SDK_VERSION` du scaffold relevé à `^0.3.0` pour que les nouveaux sites épinglent le SDK conforme.
+
+  Les sites déjà générés ne reçoivent pas ces changements automatiquement (template copié) — voir `MIGRATION.md`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @staycore/booking-sdk@0.3.0
+
 ## 0.2.3
 
 ### Patch Changes

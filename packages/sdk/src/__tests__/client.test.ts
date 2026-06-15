@@ -95,6 +95,36 @@ describe('createPmsClient', () => {
     expect(price.total).toBe(400);
   });
 
+  it('serializes adults_count / children_count for the tourist-tax breakdown', async () => {
+    const fetchFn = mockFetch(async (url) => {
+      expect(url).toContain('adults_count=2');
+      expect(url).toContain('children_count=1');
+      return jsonResponse({
+        success: true,
+        data: {
+          nights: 3,
+          subtotal: 300,
+          total: 306.6,
+          nightly_average: 100,
+          tourism_tax: 6.6,
+          tourism_tax_detail: { mode: 'auto', regime: 'reel', per_person_night: 1.1, taxable_persons: 2 },
+        },
+      });
+    });
+
+    const client = createPmsClient({ orgSlug: 'acme', fetch: fetchFn });
+    const price = await client.price.compute(42, {
+      check_in: '2026-08-01',
+      check_out: '2026-08-04',
+      guests_count: 3,
+      adults_count: 2,
+      children_count: 1,
+    });
+
+    expect(price.tourism_tax).toBe(6.6);
+    expect(price.tourism_tax_detail?.regime).toBe('reel');
+  });
+
   it('throws StayCoreApiError on success:false envelope', async () => {
     const fetchFn = mockFetch(async () =>
       jsonResponse({ success: false, message: 'Non disponible.' }, 422),

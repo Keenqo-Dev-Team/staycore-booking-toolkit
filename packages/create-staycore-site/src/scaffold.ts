@@ -24,7 +24,7 @@ type PackageJson = {
   [key: string]: unknown;
 };
 
-const SDK_VERSION = '^0.1.0'; // bumped here when the published SDK gets a new minor.
+const SDK_VERSION = '^0.3.0'; // bumped here when the published SDK gets a new minor.
 
 const PROJECT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
