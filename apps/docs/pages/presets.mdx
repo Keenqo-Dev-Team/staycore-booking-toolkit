@@ -1,0 +1,96 @@
+# Presets visuels
+
+> Chaque preset est un overlay JSON appliqué sur le template canonique au moment du scaffold. Ils touchent : palette CSS, fonts Google, hero copy par défaut.
+
+Tu peux les utiliser tels quels, ou comme **point de départ** : après scaffolding, tu édites `src/index.css` et `tailwind.config.js` pour aller encore plus loin.
+
+## 💜 love-room
+
+Romantique, sensuel. Pour les love-rooms, suites cosy, escapades en amoureux.
+
+| | |
+|---|---|
+| Brand color | `#7C2D92` (violet profond) |
+| Accent light | `#A855C3` |
+| Accent dark | `#5B1F6B` |
+| Display font | Cormorant Garamond |
+| Body font | Inter |
+| Tagline par défaut | *« Suites d'exception pour parenthèses romantiques. »* |
+
+## 🏰 chateau-luxe
+
+Patrimoine, élégance classique. Pour les châteaux, domaines, demeures de caractère.
+
+| | |
+|---|---|
+| Brand color | `#9C7B3D` (or vieilli) |
+| Accent light | `#C9A86A` |
+| Accent dark | `#6E5526` |
+| Display font | Playfair Display |
+| Body font | Lato |
+| Tagline par défaut | *« Demeures de caractère, accueil sur-mesure. »* |
+
+## 🌿 gite-nature
+
+Authentique, chaleureux, vert. Pour les gîtes, cabanes, hébergements nature.
+
+| | |
+|---|---|
+| Brand color | `#4A6B3E` (vert sauge) |
+| Accent light | `#7B9B6E` |
+| Accent dark | `#2F4A26` |
+| Display font | Lora |
+| Body font | Source Sans 3 |
+| Tagline par défaut | *« Gîtes & cabanes au cœur de la nature. »* |
+
+## 🏙️ city-business
+
+Urbain, sobre, efficace. Pour les appart-hôtels, voyageurs d'affaires.
+
+| | |
+|---|---|
+| Brand color | `#1E3A8A` (bleu nuit) |
+| Accent light | `#3B5EBF` |
+| Accent dark | `#14275A` |
+| Display font | Manrope |
+| Body font | Manrope |
+| Tagline par défaut | *« Appartements meublés pour voyageurs d'affaires. »* |
+
+## Personnaliser plus loin
+
+Après le scaffold, deux fichiers à modifier pour un look 100 % custom :
+
+```css
+/* src/index.css */
+@layer base {
+  :root {
+    --brand-color: #ff6b6b;            /* ← change ici */
+    --brand-color-light: #ff9b9b;
+    --brand-color-dark: #c93434;
+    --brand-color-contrast: #ffffff;
+    --font-display: 'Bebas Neue', serif;
+    --font-sans: 'Inter', system-ui;
+  }
+}
+```
+
+```js
+// tailwind.config.js → seulement si tu veux ajouter des couleurs au-delà de brand
+```
+
+Toute la palette Tailwind est déjà câblée via les variables CSS — change une variable et tout le site suit.
+
+## Proposer un nouveau preset
+
+Tu en as un en tête (par exemple `seaside-vibe`, `bohemian-loft`, `mountain-chalet`) ? Ouvre une PR avec un fichier `templates/presets/<id>.json` dans le repo monorepo :
+
+```json
+{
+  "id": "seaside-vibe",
+  "name": "Seaside Vibe",
+  "description": "Bord de mer, sable et ciel bleu.",
+  "css": { "...": "..." },
+  "fonts": ["https://fonts.googleapis.com/css2?..."],
+  "copy": { "brand_tagline": "..." }
+}
+```

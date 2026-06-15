@@ -1,6 +1,6 @@
 {
   "name": "create-staycore-site",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "description": "Scaffold a direct booking website wired to the Stay'Core PMS in seconds.",
   "license": "MIT",
   "author": "Keenqo <david@keenqo.fr>",
@@ -14,18 +14,28 @@
   "bin": {
     "create-staycore-site": "./bin/cli.mjs"
   },
-  "files": ["bin", "dist", "README.md"],
+  "files": [
+    "bin",
+    "dist",
+    "templates",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copy-templates.mjs",
     "dev": "tsc -p tsconfig.json --watch",
     "lint": "echo \"(lint placeholder)\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "echo \"(no tests yet)\" && exit 0",
-    "clean": "rm -rf dist"
+    "test": "vitest run",
+    "clean": "rm -rf dist templates",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@staycore/booking-sdk": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
   },
   "publishConfig": {
     "access": "public"
@@ -33,5 +43,12 @@
   "engines": {
     "node": ">=20"
   },
-  "keywords": ["staycore", "booking", "scaffolding", "create-app", "vite", "react"]
+  "keywords": [
+    "staycore",
+    "booking",
+    "scaffolding",
+    "create-app",
+    "vite",
+    "react"
+  ]
 }

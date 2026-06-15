@@ -1,0 +1,71 @@
+# Quickstart — Claude Code
+
+> Scaffolde ton site en **conversation naturelle** avec Claude Code.
+
+## 1. Installer le skill
+
+**Option A — Marketplace Anthropic** *(soumission en cours)*
+
+```bash
+/plugin install staycore-direct-booking
+```
+
+**Option B — Repo git direct**
+
+```bash
+claude --plugin-dir https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit/tree/main/packages/skill-claude-code
+```
+
+**Option C — Local développement**
+
+```bash
+git clone https://github.com/Keenqo-Dev-Team/staycore-booking-toolkit
+claude --plugin-dir ./staycore-booking-toolkit/packages/skill-claude-code
+```
+
+## 2. Lancer Claude Code dans un dossier vide
+
+```bash
+mkdir mon-projet && cd mon-projet
+claude
+```
+
+## 3. Demander le scaffold
+
+Écris à Claude Code quelque chose comme :
+
+> *« Crée-moi un site love-room pour ma conciergerie. Mon org Stay'Core c'est `stayflex-immo`, marque "Les Suites Bisous", tagline "Suites d'exception pour parenthèses romantiques". »*
+
+Le skill se déclenche automatiquement (sa `description` matche l'intention). Claude Code :
+
+1. Vérifie que l'org `stayflex-immo` existe via `GET /api/v1/book/stayflex-immo`
+2. Récupère ta liste de propriétés
+3. Lance `npx create-staycore-site` avec les bons paramètres
+4. Te propose ensuite de **personnaliser** : palette précise, photos, copy, GA4, déploiement
+
+## 4. Itérer
+
+Après le scaffold, continue la conversation avec Claude Code pour **éditer le code** :
+
+> *« Ajoute une page "Expérience" qui décrit l'arrivée autonome et les options romantiques. »*
+
+> *« Change le hero pour mettre une vidéo de fond au lieu d'une image. »*
+
+> *« Ajoute des avis clients sur la page d'accueil. »*
+
+Le skill ne fait que la première étape (scaffolding) — toute l'itération suivante est du Claude Code classique avec un projet déjà branché à ton PMS.
+
+## Questions courantes
+
+**Le skill ne se déclenche pas ?**
+Vérifie qu'il apparaît dans la liste : `claude /skills list`. Sinon force le déclenchement explicite :
+
+```
+> /staycore-direct-booking
+```
+
+**Mon org n'existe pas / n'est pas trouvée ?**
+Active le moteur public dans **Dashboard Stay'Core → Booking Engine → Activer**. Sans ça, l'org n'est pas exposée sur l'API publique.
+
+**Je veux le contrôle complet sans skill ?**
+Utilise le [quickstart CLI](/quickstart-cli) directement, ou demande à Claude Code de juste lancer `npx create-staycore-site ...` à la main.

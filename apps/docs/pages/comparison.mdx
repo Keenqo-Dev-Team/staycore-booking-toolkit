@@ -1,0 +1,47 @@
+# Quel outil choisir ?
+
+> Stay'Core propose **3 façons** de créer un site de réservation directe. Ce guide t'aide à choisir.
+
+## Matrice de décision
+
+| Critère | Module Website intégré PMS | Direct Booking Toolkit (ce site) | Sur-mesure 100 % |
+|---|---|---|---|
+| **Pour qui** | Conciergerie non-tech | Dev / agence avec assistant IA | Designer/dev sénior |
+| **Code à écrire** | Aucun (block builder) | Très peu (Claude Code/CLI + édition) | Tout |
+| **Direction artistique** | Limitée aux blocs | Forte (4 presets + libre custom après) | Illimitée |
+| **Temps de mise en place** | < 1 heure | < 30 minutes | 1 à 6 semaines |
+| **Hébergement** | Stay'Core (Vercel managé) | Toi (Vercel, Netlify, Cloudflare…) | Toi |
+| **Évolutivité** | Limitée (blocs préfabriqués) | Totale (c'est ton code) | Totale |
+| **Maintenance** | Stay'Core | Toi | Toi |
+| **Coût mensuel** | Inclus dans ton plan PMS | 0 € (Vercel free tier suffit) | 0-X € |
+| **Plan requis** | Pro+ | Tous les plans | Tous les plans |
+
+## Quand choisir...
+
+### 🎨 Le module Website intégré
+
+Tu es **propriétaire / gestionnaire non-tech**, tu veux un site rapidement, et tu acceptes les limites des blocs préfabriqués. Tu accèdes au builder depuis le dashboard PMS, tu glisses-déposes des sections, tu modifies les textes, tu publies. Stay'Core héberge tout.
+
+→ [Dashboard PMS / Website](https://app.stay-core.com/dashboard/website)
+
+### 🛠️ Le Direct Booking Toolkit (recommandé pour la plupart)
+
+Tu veux **un site avec ta direction artistique** (couleurs, fonts, structure de pages spécifique) mais tu n'as pas envie de tout coder de zéro. Tu utilises Claude Code, Cursor ou Codex pour générer une base solide, puis tu l'adaptes à ton goût en quelques heures.
+
+→ [Quickstart Claude Code](/quickstart-claude-code) — [Quickstart CLI](/quickstart-cli) — [Quickstart Cursor/Codex](/quickstart-cursor-codex)
+
+### 🎯 Le sur-mesure 100 %
+
+Tu es **designer ou dev sénior**, tu veux un site avec une signature visuelle unique, des animations bespoke, une architecture front custom (Astro, Remix, Next.js App Router…). Tu installes juste le SDK `@staycore/booking-sdk` dans ton stack et tu codes le reste.
+
+→ [SDK TypeScript](/sdk) — [API publique v1](/api-reference)
+
+## Combiner
+
+Les trois outils sont **complémentaires, pas exclusifs**. Tu peux :
+
+- Démarrer avec le module Website (proto rapide pour valider la demande)
+- Migrer vers le Toolkit quand tu veux plus de liberté
+- Garder le Toolkit comme base et le faire évoluer en sur-mesure pur
+
+Les **propriétés et le moteur de réservation restent les mêmes** — peu importe comment ton site est construit, le PMS Stay'Core reste la source de vérité.

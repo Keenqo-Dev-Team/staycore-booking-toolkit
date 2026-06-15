@@ -9,6 +9,9 @@ build/
 .turbo/
 *.tsbuildinfo
 
+# CLI-bundled templates (copied from templates/ at build time)
+packages/create-staycore-site/templates/
+
 # Env
 .env
 .env.local

@@ -1,0 +1,25 @@
+{
+  "id": "chateau-luxe",
+  "name": "Château Luxe",
+  "description": "Patrimoine, élégance classique. Palette or/crème, typographie serif.",
+  "css": {
+    "--brand-color": "#9C7B3D",
+    "--brand-color-light": "#C9A86A",
+    "--brand-color-dark": "#6E5526",
+    "--brand-color-contrast": "#fffbe6",
+    "--font-display": "'Playfair Display', serif",
+    "--font-sans": "'Lato', system-ui, sans-serif"
+  },
+  "fonts": [
+    "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Lato:wght@400;700&display=swap"
+  ],
+  "copy": {
+    "brand_tagline": "Demeures de caractère, accueil sur-mesure. Réservez en direct auprès du propriétaire.",
+    "hero_image": "https://images.unsplash.com/photo-1518562180175-34a163b1a9a6?w=1920&q=80",
+    "home_stats": [
+      { "value": "Sans", "label": "intermédiaire", "description": "Vous traitez en direct avec la conciergerie du domaine." },
+      { "value": "Service", "label": "conciergerie", "description": "Chef à domicile, transferts, activités sur demande." },
+      { "value": "Cadre", "label": "exceptionnel", "description": "Propriétés sélectionnées, entretenues avec soin." }
+    ]
+  }
+}

@@ -1,0 +1,114 @@
+# SDK TypeScript — `@staycore/booking-sdk`
+
+> Client typé pour le moteur de réservation public Stay'Core. Pure ESM, fetch-based, tourne en Node 20+, navigateur, edge, Cloudflare Workers.
+
+## Installation
+
+```bash
+pnpm add @staycore/booking-sdk
+# ou : npm install @staycore/booking-sdk
+```
+
+## Usage vanilla
+
+```ts
+import { createPmsClient } from '@staycore/booking-sdk';
+
+const pms = createPmsClient({ orgSlug: 'mon-org' });
+
+const config = await pms.config();
+console.log(config.organization.name); // → "STAYFLEX IMMO"
+
+const properties = await pms.properties.list();
+
+const price = await pms.price.compute(properties[0].id, {
+  check_in: '2026-08-01',
+  check_out: '2026-08-05',
+  guests_count: 2,
+});
+
+const checkout = await pms.checkout.create({
+  property_id: properties[0].id,
+  guest_name: 'Jean Dupont',
+  guest_email: 'jean@example.com',
+  check_in: '2026-08-01',
+  check_out: '2026-08-05',
+  guests_count: 2,
+});
+
+// checkout.client_secret → branche Stripe Elements pour finir le paiement
+```
+
+## Hooks React
+
+```tsx
+import {
+  StayCoreProvider,
+  useProperties,
+  useAvailability,
+  usePrice,
+  useCheckout,
+} from '@staycore/booking-sdk/react';
+
+function App() {
+  return (
+    <StayCoreProvider orgSlug="mon-org">
+      <Booking />
+    </StayCoreProvider>
+  );
+}
+
+function Booking() {
+  const { data: properties, isLoading } = useProperties();
+  const { submit, isLoading: submitting } = useCheckout();
+  // ...
+}
+```
+
+| Hook | Mode | Retour |
+|---|---|---|
+| `useOrgConfig()` | query | Config org + Stripe public key |
+| `useProperties()` | query | Liste des biens |
+| `useAvailability(propertyId)` | query | Calendrier mensuel |
+| `usePrice(propertyId, params)` | query | Prix + disponibilité |
+| `useCheckout()` | mutation | `submit(payload) → CheckoutResponse` |
+
+Toutes les queries renvoient `{ data, error, isLoading, status, refresh }` et se ré-exécutent automatiquement quand les paramètres clés changent.
+
+## Gestion des erreurs
+
+```ts
+import { StayCoreApiError } from '@staycore/booking-sdk';
+
+try {
+  await pms.checkout.create(payload);
+} catch (err) {
+  if (err instanceof StayCoreApiError) {
+    console.error(err.status, err.message, err.body);
+    if (err.isClientError) {
+      // 4xx → afficher le message à l'utilisateur (validation, prop introuvable, etc.)
+    }
+    if (err.isServerError) {
+      // 5xx → retry possible
+    }
+  }
+}
+```
+
+## Options avancées
+
+```ts
+createPmsClient({
+  orgSlug: 'mon-org',
+  baseUrl: 'https://api.stay-core.com/api/v1', // défaut
+  timeoutMs: 30_000,
+  defaultHeaders: { 'Accept-Language': 'fr' },
+  fetch: customFetch, // Node < 18 ou monkey-patché
+});
+```
+
+## Versioning
+
+Le SDK cible `/api/v1/book/*` — un groupe de routes additif, contrat figé, garanti par un test backend ([`BookingContractTest.php`](https://github.com/Keenqo-Dev-Team/staycore-pms/blob/develop/backend/tests/Feature/Api/V1/BookingContractTest.php)).
+
+Tout changement breaking nécessiterait `/api/v2/...` et un bump majeur du SDK (`@staycore/booking-sdk@2.x`). Tes sites scaffoldés ne casseront pas silencieusement.

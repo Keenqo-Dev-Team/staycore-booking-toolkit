@@ -1,0 +1,149 @@
+# API publique v1 — Référence
+
+> Toutes les routes sont **publiques** (sans authentification) sous le préfixe `/api/v1/book/{org_slug}`.
+
+Le contrat est figé. Toute évolution breaking passe par `/api/v2/...` et un nouveau SDK.
+
+## En-têtes de réponse
+
+Toute réponse de la v1 inclut :
+
+```
+X-Staycore-API-Version: v1
+Content-Type: application/json
+```
+
+Utilisé pour observabilité côté backend (combien de clients sur v1 vs legacy).
+
+## Enveloppe standard
+
+```jsonc
+// Succès
+{
+  "success": true,
+  "data": { /* T */ },
+  "message": "Optional"
+}
+
+// Échec
+{
+  "success": false,
+  "message": "Description courte de l'erreur."
+}
+```
+
+## Endpoints
+
+### `GET /api/v1/book/{slug}`
+
+Configuration de l'organisation + clé Stripe publique.
+
+**Réponse** :
+
+```jsonc
+{
+  "success": true,
+  "data": {
+    "organization": { "name": "Acme", "slug": "acme", "logo": null },
+    "config": {
+      "payment_mode": "full" | "deposit" | "request",
+      "default_locale": "fr" | "en",
+      "branding": {},
+      "terms_url": null,
+      "min_stay_nights": null,
+      "max_stay_nights": null
+    },
+    "stripe_public_key": "pk_live_..."
+  }
+}
+```
+
+### `GET /api/v1/book/{slug}/properties`
+
+Liste des biens bookables.
+
+### `GET /api/v1/book/{slug}/properties/{id}/availability`
+
+Calendrier de disponibilités (mois courant + suivants).
+
+### `GET /api/v1/book/{slug}/properties/{id}/price`
+
+**Query string** :
+
+| Param | Type | Requis |
+|---|---|---|
+| `check_in` | `YYYY-MM-DD` | ✓ |
+| `check_out` | `YYYY-MM-DD` | ✓ |
+| `guests_count` | `integer` | — |
+| `coupon_code` | `string` | — |
+
+### `POST /api/v1/book/{slug}/checkout`
+
+**Body JSON** :
+
+```jsonc
+{
+  "property_id": 42,
+  "guest_name": "Jean Dupont",
+  "guest_email": "jean@example.com",
+  "guest_phone": "+33...",
+  "check_in": "2026-08-01",
+  "check_out": "2026-08-05",
+  "guests_count": 2,
+  "message": "Anniversaire",
+  "locale": "fr",
+  "coupon_code": "WELCOME10"
+}
+```
+
+**Réponse 201** :
+
+```jsonc
+{
+  "success": true,
+  "data": {
+    "booking_token": "abc123...",
+    "payment_mode": "full",
+    "total_amount": 500.00,
+    "charge_amount": 500.00,
+    "client_secret": "pi_..._secret_...",
+    "stripe_public_key": "pk_live_..."
+  }
+}
+```
+
+**Rate limit** : 10 / minute.
+
+### `POST /api/v1/book/{slug}/validate-coupon`
+
+Valider un code promo avant le checkout. **Rate limit** : 20 / minute.
+
+### `GET /api/v1/book/{slug}/booking/{token}`
+
+Statut de la réservation par son token (page de suivi).
+
+### `POST /api/v1/book/{slug}/booking/{token}/confirm`
+
+Confirmer la réservation après succès Stripe. **Rate limit** : 10 / minute.
+
+## CORS
+
+L'origine appelante doit être autorisée. Deux options :
+
+1. **Custom domain** déclaré dans le dashboard Stay'Core (Settings → Custom domains) — `*.stay-core.com` et `*.vercel.app` sont autorisés en plus
+2. **Allowed origins** explicite dans `BookingEngineConfig.allowed_origins` côté backend
+
+Voir le guide [Custom domain](/custom-domain).
+
+## Statuts d'erreur courants
+
+| Code | Quand | Action |
+|---|---|---|
+| `404` | Org inexistante, moteur public désactivé, propriété introuvable | Vérifier le slug, activer le moteur public |
+| `422` | Validation échouée, dispo non garantie, paiement non confirmé | Lire `message` |
+| `429` | Rate limit dépassé | Backoff et réessayer |
+| `500` | Bug serveur (rare) | Réessayer, contacter support |
+
+## Contrat figé
+
+Le contrat de cette API est **gardé par un test PHPUnit** dans le backend ([BookingContractTest.php](https://github.com/Keenqo-Dev-Team/staycore-pms/blob/develop/backend/tests/Feature/Api/V1/BookingContractTest.php)). Tout changement qui casserait la compatibilité fait échouer le CI : tu peux te baser dessus en production sans risque de surprise.

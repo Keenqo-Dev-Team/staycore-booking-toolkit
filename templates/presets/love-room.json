@@ -1,0 +1,25 @@
+{
+  "id": "love-room",
+  "name": "Love Room",
+  "description": "Romantique, sensuel, luxueux. Palette violet/or, fonts manuscrites.",
+  "css": {
+    "--brand-color": "#7C2D92",
+    "--brand-color-light": "#A855C3",
+    "--brand-color-dark": "#5B1F6B",
+    "--brand-color-contrast": "#ffffff",
+    "--font-display": "'Cormorant Garamond', serif",
+    "--font-sans": "'Inter', system-ui, sans-serif"
+  },
+  "fonts": [
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600&display=swap"
+  ],
+  "copy": {
+    "brand_tagline": "Suites d'exception pour parenthèses romantiques. Réservation directe, sans commission.",
+    "hero_image": "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1920&q=80",
+    "home_stats": [
+      { "value": "0 %", "label": "Commission", "description": "Pas d'intermédiaire, vous économisez 15-20 % vs Airbnb." },
+      { "value": "24/7", "label": "Support privé", "description": "On vous répond directement, sans plateforme." },
+      { "value": "100 %", "label": "Discrétion", "description": "Paiement sécurisé, arrivée autonome, confidentialité garantie." }
+    ]
+  }
+}

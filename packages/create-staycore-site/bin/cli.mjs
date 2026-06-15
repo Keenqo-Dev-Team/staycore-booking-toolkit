@@ -1,4 +1,10 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
-console.log('create-staycore-site — coming soon (Phase 4).');
-process.exit(0);
+import { main } from '../dist/cli.js';
+
+main().then(
+  (code) => process.exit(code),
+  (err) => {
+    console.error('\x1b[31m✗\x1b[39m', err?.message ?? err);
+    process.exit(1);
+  },
+);

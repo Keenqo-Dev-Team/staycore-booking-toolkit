@@ -1,0 +1,67 @@
+# Custom domain
+
+> Comment brancher un nom de domaine personnalisé à ton site et faire en sorte que l'API Stay'Core l'accepte.
+
+## Vue d'ensemble
+
+Ton site est hébergé quelque part (Vercel, Netlify, Cloudflare, etc.). Il appelle l'API Stay'Core à `https://api.stay-core.com/api/v1/book/...`. Pour que ces appels passent depuis ton domaine, **deux choses doivent être en place** :
+
+1. Ton DNS pointe correctement vers ton hébergeur
+2. L'API Stay'Core a ton domaine dans sa liste CORS
+
+## 1. DNS chez ton hébergeur
+
+### Vercel
+
+```bash
+vercel domains add mon-site.com
+```
+
+Suivre l'instruction (ajouter `A` ou `CNAME` records chez ton registrar).
+
+### Autres
+
+Le pattern est universel :
+- `CNAME` vers le sous-domaine de l'hébergeur, OU
+- `A`/`AAAA` vers ses IPs publiques
+
+Documentation hébergeur de référence.
+
+## 2. Autoriser le domaine côté Stay'Core
+
+Deux mécanismes selon ton plan :
+
+### Option A — Plan Pro+ : custom_domain natif
+
+Dashboard Stay'Core → **Settings → Custom domain** → entrer `mon-site.com`. Stay'Core appelle l'API Vercel Domains pour configurer le routage et le SSL, et **ajoute automatiquement ton domaine à la liste CORS**. Pas d'étape manuelle.
+
+### Option B — Tous les plans : allowed_origins manuel
+
+Dashboard Stay'Core → **Booking engine → Allowed origins** → ajouter `https://mon-site.com`. CORS est rafraîchi immédiatement (cache 5 min).
+
+> **Astuce dev** : les preview deployments Vercel `*.vercel.app` sont autorisés par défaut, donc tu peux itérer sur des PR preview sans config additionnelle.
+
+## 3. Smoke test
+
+```bash
+curl -i -X GET https://api.stay-core.com/api/v1/book/{ton-slug} \
+  -H "Origin: https://mon-site.com"
+```
+
+Tu dois voir dans la réponse :
+
+```
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://mon-site.com
+X-Staycore-API-Version: v1
+```
+
+Si `Access-Control-Allow-Origin` ne renvoie pas ton domaine, c'est que la liste CORS n'a pas pris — vérifie l'étape 2.
+
+## 4. SSL / HTTPS
+
+**Obligatoire**. L'API Stay'Core refuse les origins HTTP en production. Vercel/Netlify/Cloudflare provisionnent HTTPS automatiquement via Let's Encrypt — il n'y a rien à faire.
+
+## Plusieurs domaines
+
+Pour pointer plusieurs domaines vers le même site (ex: `mon-site.com` + `mon-site.fr`), ajoute-les tous dans **Allowed origins**, séparés par des virgules. Pas de limite documentée.

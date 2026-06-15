@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0a0a0a"/>
+      <stop offset="1" stop-color="#1a1a1a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#dcc06e"/>
+      <stop offset="1" stop-color="#b8923a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- S mark, scaled from favicon (S brand) -->
+  <g transform="translate(96, 88)">
+    <rect width="128" height="128" rx="28" fill="#0f0f0f" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.3"/>
+    <path
+      d="M80.8 40.8 C79.2 33.6 72.8 28.8 64.8 28.8 C54 28.8 46 36 46 45.2 C46 55.2 54 59.2 64 63.2 C75.2 68 83.2 72.8 83.2 83.2 C83.2 92.8 75.2 100 64 100 C56 100 48.8 94 47.2 87.2"
+      stroke="url(#gold)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"
+    />
+  </g>
+
+  <!-- STAYCORE wordmark -->
+  <text x="248" y="178" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="56" font-weight="700" fill="#ffffff" letter-spacing="6">STAYCORE</text>
+  <text x="248" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#C9A84C" letter-spacing="4">DIRECT BOOKING TOOLKIT</text>
+
+  <!-- Tagline -->
+  <text x="96" y="360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="600" fill="#ffffff">Réservation directe.</text>
+  <text x="96" y="436" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="600" fill="#C9A84C">Sans commission.</text>
+
+  <!-- Sub-line -->
+  <text x="96" y="500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" fill="#9a9a9a">SDK TypeScript · CLI npx · Skill Claude Code</text>
+
+  <!-- Footer -->
+  <text x="96" y="568" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" fill="#666666">docs.stay-core.com / booking-toolkit</text>
+
+  <!-- Decorative accent line -->
+  <rect x="96" y="288" width="64" height="4" fill="url(#gold)" rx="2"/>
+</svg>
