@@ -4,13 +4,22 @@ import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-
 import { useStayCore } from '@staycore/booking-sdk/react';
 
 type Props = {
-  bookingToken: string;
   clientSecret: string;
   stripePublicKey: string;
+  /** Booking to confirm once paid. Omit it when `confirm` and `returnPath` are given. */
+  bookingToken?: string;
+  /** Where the bank sends the visitor back after a redirect (3-D Secure). */
+  returnPath?: string;
+  /** Server-side confirmation once Stripe has charged. Defaults to confirming the booking. */
+  confirm?: () => Promise<unknown>;
   onConfirmed: () => void;
 };
 
-export function StripePanel({ bookingToken, clientSecret, stripePublicKey, onConfirmed }: Props) {
+export function StripePanel({ bookingToken, clientSecret, stripePublicKey, returnPath, confirm, onConfirmed }: Props) {
+  const pms = useStayCore();
+  const path = returnPath ?? `/reservation/${encodeURIComponent(bookingToken ?? '')}`;
+  const confirmPaid = confirm ?? (() => pms.booking.confirm(bookingToken ?? ''));
+
   const stripePromise = useMemo<Promise<StripeJs | null>>(
     () => loadStripe(stripePublicKey),
     [stripePublicKey],
@@ -18,27 +27,28 @@ export function StripePanel({ bookingToken, clientSecret, stripePublicKey, onCon
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
-      <StripeForm bookingToken={bookingToken} onConfirmed={onConfirmed} />
+      <StripeForm returnPath={path} confirm={confirmPaid} onConfirmed={onConfirmed} />
     </Elements>
   );
 }
 
 function StripeForm({
-  bookingToken,
+  returnPath,
+  confirm,
   onConfirmed,
 }: {
-  bookingToken: string;
+  returnPath: string;
+  confirm: () => Promise<unknown>;
   onConfirmed: () => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
-  const pms = useStayCore();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
-  }, [bookingToken]);
+  }, [returnPath]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +60,7 @@ function StripeForm({
       elements,
       redirect: 'if_required',
       confirmParams: {
-        return_url: `${window.location.origin}/reservation/${encodeURIComponent(bookingToken)}`,
+        return_url: `${window.location.origin}${returnPath}`,
       },
     });
 
@@ -66,7 +76,7 @@ function StripeForm({
 
     if (status === 'succeeded') {
       try {
-        await pms.booking.confirm(bookingToken);
+        await confirm();
         onConfirmed();
       } catch (err) {
         setError(err instanceof Error

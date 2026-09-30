@@ -126,6 +126,77 @@ Statut de la réservation par son token (page de suivi).
 
 Confirmer la réservation après succès Stripe. **Rate limit** : 10 / minute.
 
+### `GET /api/v1/book/{slug}/properties/{id}/options`
+
+Options vendues sur la page de réservation (arrivée anticipée, champagne…). Paramètre facultatif `check_in` pour évaluer le délai de commande : une option hors délai revient avec `available: false` et son motif.
+
+La sélection se passe ensuite au devis (`options[0][id]=42&options[0][quantity]=1`) et au checkout (`"options": [{ "id": 42, "quantity": 1 }]`). Le prix n'est jamais calculé côté client.
+
+## Modules du site
+
+Trois modules s'activent par organisation dans le dashboard Stay'Core (Moteur de résa › Site web). `GET /api/v1/book/{slug}` renvoie un bloc `modules` qui dit lesquels sont ouverts ; une route d'un module coupé répond `404`.
+
+```json
+"modules": {
+  "chat": { "enabled": true, "welcome_message_fr": "Bonjour, une question ?", "welcome_message_en": null },
+  "contact": { "enabled": true },
+  "gift_cards": {
+    "enabled": true, "amounts": [100, 200, 300], "allow_custom_amount": true,
+    "min_amount": 50, "max_amount": 1000, "validity_months": 12, "currency": "EUR"
+  },
+  "captcha": null
+}
+```
+
+Quand `captcha` est renseigné (`{ "provider": "turnstile", "site_key": "…" }`), l'ouverture d'un chat et l'envoi du formulaire attendent un `captcha_token`.
+
+### Chat
+
+Le chat est tenu par l'assistant IA que l'hôte a réglé dans Stay'Core. Chaque conversation arrive dans sa messagerie, canal « Site web » ; il peut y répondre lui-même, et l'assistant se met alors en pause sur cette conversation.
+
+Il n'y a pas de WebSocket : le site interroge `GET /chat/messages` tant que le chat est à l'écran. C'est aussi ce qui dit au serveur que le visiteur est encore là ; s'il est parti et a laissé son e-mail, les réponses partent par e-mail.
+
+| Méthode | Route | Rôle | Limite |
+|---|---|---|---|
+| POST | `/chat/sessions` | Ouvre une conversation. Renvoie `token`, `welcome_message`, `thread`. | 5 / minute |
+| POST | `/chat/messages` | Envoie `{ "content": "…" }` (2 000 caractères au plus). | 12 / minute |
+| GET | `/chat/messages?after={id}` | Messages après `id`, et l'état du fil. | 90 / minute |
+| POST | `/chat/contact-details` | Enregistre `name`, `email`, `phone` du visiteur. | 12 / minute |
+
+Le jeton du visiteur se passe dans l'en-tête `Authorization: Bearer {token}`. Un jeton inconnu répond `401` avec `code: "session_invalid"` : ouvre une nouvelle conversation.
+
+`thread.status` dit qui répondra au prochain message :
+
+| Valeur | Sens | À afficher |
+|---|---|---|
+| `assistant` | L'assistant répond seul. | « Assistant » |
+| `awaiting_host` | L'assistant prépare, l'hôte valide avant envoi. | « Nous vous répondons dans un instant », et proposer de laisser un e-mail |
+| `host` | Un humain a repris la main, ou aucun assistant n'est disponible. | Le nom du lieu, et proposer de laisser un e-mail |
+
+Chaque message porte un `role` : `visitor`, `assistant` ou `host`.
+
+### Formulaire de contact
+
+`POST /api/v1/book/{slug}/contact` avec `name`, `email`, `message` (obligatoires), `phone`, `property_id`, `locale`, `origin_url`. Le message ouvre une conversation dans la messagerie de l'hôte ; sa réponse part par e-mail au visiteur. **Limite** : 3 messages par heure et par adresse e-mail (`429`, `code: "too_many_messages"`).
+
+Ajoute un champ caché `website` à ton formulaire et transmets-le tel quel : un robot qui le remplit est écarté sans le savoir.
+
+### Cartes cadeaux
+
+Une carte cadeau est un **moyen de paiement à solde**, pas une remise : elle se déduit du total après options, frais et taxe de séjour, et ce qu'elle ne dépense pas reste sur la carte.
+
+| Méthode | Route | Rôle | Limite |
+|---|---|---|---|
+| POST | `/gift-cards/checkout` | Crée la carte en attente et le PaymentIntent. Renvoie `gift_card_token`, `client_secret`, `stripe_public_key`. | 10 / minute |
+| POST | `/gift-cards/{token}/confirm` | À appeler après le succès Stripe : le serveur revérifie le paiement et active la carte. | 10 / minute |
+| GET | `/gift-cards/{token}` | Suivi de l'achat. Le `code` n'y figure qu'une fois la carte payée. | — |
+| POST | `/gift-cards/balance` | Solde d'une carte : `{ "code": "ABCD-EFGH-JKLM" }`. | 6 / minute |
+
+Pour payer une réservation avec une carte :
+
+- passe `gift_card_code` au devis (`GET /properties/{id}/price`) : la réponse ajoute `gift_card_amount`, `gift_card` (`applied_amount`, `remaining_balance`) et `amount_due`, le montant qui sera réellement débité. `total` ne change pas. Un code refusé n'empêche pas le devis : le motif arrive dans `gift_card_error` ;
+- passe le même `gift_card_code` au `POST /checkout`. Un code refusé répond `422` avec `code: "gift_card_invalid"`. Si la carte couvre tout, la réponse porte `payment_required: false` et `status: "confirmed"` : il n'y a pas d'étape Stripe.
+
 ## CORS
 
 L'origine appelante doit être autorisée. Deux options :

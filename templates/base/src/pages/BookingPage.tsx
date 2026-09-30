@@ -41,6 +41,11 @@ export function BookingPage({ onNavigate }: Props) {
       setStep('request');
       return;
     }
+    // Une carte cadeau a tout réglé : la réservation est déjà confirmée.
+    if (response.payment_required === false) {
+      setStep('confirmation');
+      return;
+    }
     if (response.client_secret) {
       setStep('payment');
       return;
@@ -59,6 +64,7 @@ export function BookingPage({ onNavigate }: Props) {
         {step === 'form' && (
           <BookingForm
             initialPropertyId={initialProperty?.pmsPropertyId}
+            giftCardsEnabled={orgConfig.data?.modules?.gift_cards.enabled ?? false}
             onCheckoutCreated={handleCheckoutCreated}
           />
         )}

@@ -2,9 +2,11 @@ import { BRAND_NAME } from '../../config.ts';
 
 type Props = {
   onNavigate: (path: string) => void;
+  /** Pages of the modules the host enabled in Stay'Core (gift cards, contact). */
+  extraLinks?: { path: string; label: string }[];
 };
 
-export function Footer({ onNavigate }: Props) {
+export function Footer({ onNavigate, extraLinks = [] }: Props) {
   return (
     <footer className="bg-gray-50 border-t border-gray-100 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -33,6 +35,13 @@ export function Footer({ onNavigate }: Props) {
                 Réserver
               </button>
             </li>
+            {extraLinks.map((l) => (
+              <li key={l.path}>
+                <button onClick={() => onNavigate(l.path)} className="text-gray-700 hover:text-brand">
+                  {l.label}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
 

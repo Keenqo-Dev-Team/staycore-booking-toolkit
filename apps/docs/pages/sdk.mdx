@@ -71,9 +71,114 @@ function Booking() {
 | `useProperties()` | query | Liste des biens |
 | `useAvailability(propertyId)` | query | Calendrier mensuel |
 | `usePrice(propertyId, params)` | query | Prix + disponibilité |
+| `useOptions(propertyId, checkIn?)` | query | Options vendues avec le séjour |
 | `useCheckout()` | mutation | `submit(payload) → CheckoutResponse` |
+| `useChat({ active, propertyId })` | état | Chat du site : `messages`, `thread`, `send`, `saveContact` |
 
 Toutes les queries renvoient `{ data, error, isLoading, status, refresh }` et se ré-exécutent automatiquement quand les paramètres clés changent.
+
+## Options et cartes cadeaux dans le devis
+
+Le prix ne se calcule jamais dans le navigateur. Envoie le panier à `price.compute` à chaque changement et affiche ce que le serveur renvoie :
+
+```ts
+const options = await pms.options.list(propertyId, { check_in: '2026-11-17' });
+
+const quote = await pms.price.compute(propertyId, {
+  check_in: '2026-11-17',
+  check_out: '2026-11-18',
+  guests_count: 2,
+  options: [{ id: options[0].id, quantity: 1 }],
+  gift_card_code: 'ABCD-EFGH-JKLM',
+});
+
+quote.total;            // valeur du séjour, options comprises
+quote.gift_card_amount; // part réglée par la carte cadeau, ou null
+quote.gift_card_error;  // pourquoi la carte n'a pas été appliquée, le cas échéant
+quote.amount_due;       // ce qui sera débité en ligne maintenant
+```
+
+Passe les mêmes `options` et `gift_card_code` à `checkout.create`. Quand la carte couvre tout, la réponse porte `payment_required: false` et `status: 'confirmed'` : il n'y a pas d'étape Stripe.
+
+## Modules du site : chat, contact, cartes cadeaux
+
+L'hôte ouvre ces modules dans Stay'Core, sous **Moteur de résa › Site web**. `config().modules` dit lesquels sont ouverts : affiche la bulle, la page de contact ou la page carte cadeau seulement quand le module correspondant l'est. Un site déjà en ligne n'a rien à redéployer quand l'hôte change d'avis.
+
+```ts
+const { modules } = await pms.config();
+
+modules?.chat.enabled;        // afficher la bulle de chat
+modules?.contact.enabled;     // envoyer le formulaire vers la messagerie de l'hôte
+modules?.gift_cards.enabled;  // vendre et accepter des cartes cadeaux
+modules?.gift_cards.amounts;  // montants proposés par l'hôte
+```
+
+### Chat
+
+Le chat est tenu par l'assistant IA que l'hôte a réglé pour le logement. La conversation arrive dans sa messagerie Stay'Core, canal « Site web », où il peut reprendre la main depuis l'ordinateur ou l'application mobile.
+
+```tsx
+import { useChat } from '@staycore/booking-sdk/react';
+
+function ChatBubble({ open }: { open: boolean }) {
+  const { messages, thread, send, saveContact, isSending, error } = useChat({
+    active: open,       // l'interrogation du serveur ne tourne que chat ouvert
+    propertyId: 296,    // le logement que le visiteur regarde
+    locale: 'fr',
+  });
+
+  // messages[i].role : 'visitor' | 'assistant' | 'host'
+  // thread.status    : 'assistant' | 'awaiting_host' | 'host' — qui répond ensuite
+  // thread.has_contact : le visiteur a laissé son e-mail
+}
+```
+
+- La session s'ouvre au premier message : un visiteur qui ouvre la bulle sans écrire ne crée rien côté serveur.
+- Le jeton du visiteur est gardé dans `localStorage` : la conversation survit à un rechargement ou à une visite ultérieure.
+- Quand `thread.status` n'est plus `assistant`, propose au visiteur de laisser son e-mail (`saveContact({ email })`) : la réponse de l'hôte lui parvient alors même s'il a quitté le site.
+- Quand des dates sont libres, l'assistant envoie le lien de réservation réglé par l'hôte (« Lien de réservation de votre site », avec `{check_in}` et `{check_out}`). Transforme ce lien en bouton.
+
+Sans React, les mêmes appels existent sur le client : `pms.chat.open`, `pms.chat.send`, `pms.chat.messages`, `pms.chat.saveContact`.
+
+### Formulaire de contact
+
+```ts
+await pms.contact.send({
+  name: 'Jeanne Martin',
+  email: 'jeanne@example.com',
+  message: 'Peut-on venir avec un chien ?',
+  property_id: 296,
+  website: form.website, // champ caché anti-robot : transmets-le tel quel
+});
+```
+
+Le message ouvre une conversation dans la messagerie de l'hôte ; sa réponse part par e-mail au visiteur.
+
+### Cartes cadeaux
+
+```ts
+// 1. Achat : crée la carte en attente et le paiement sur le compte Stripe de l'hôte
+const purchase = await pms.giftCards.checkout({
+  amount: 200,
+  purchaser_name: 'Jeanne Martin',
+  purchaser_email: 'jeanne@example.com',
+  recipient_name: 'Paul',
+  recipient_email: 'paul@example.com', // absent : la carte est envoyée à l'acheteur
+  send_at: '2026-12-24',               // absent : envoi dès le paiement
+});
+
+// 2. Stripe Elements avec purchase.client_secret et purchase.stripe_public_key
+
+// 3. Après le succès Stripe : le serveur revérifie le paiement et active la carte
+const card = await pms.giftCards.confirm(purchase.gift_card_token);
+card.code; // « ABCD-EFGH-JKLM »
+
+// Solde d'une carte reçue
+const balance = await pms.giftCards.balance('ABCD-EFGH-JKLM');
+if (balance.valid) balance.balance; // 200
+```
+
+Une carte cadeau est un moyen de paiement à solde : ce qu'une réservation ne dépense pas reste sur la carte.
 
 ## Gestion des erreurs
 

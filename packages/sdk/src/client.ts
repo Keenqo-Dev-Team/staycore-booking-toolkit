@@ -2,11 +2,23 @@ import { StayCoreApiError } from './errors.js';
 import type {
   ApiResponse,
   AvailabilityCalendar,
+  BookingOption,
   BookingStatus,
+  ChatContactDetails,
+  ChatMessagesResult,
+  ChatSendResult,
+  ChatSession,
+  ChatSessionRequest,
+  ChatThreadState,
   CheckoutRequest,
   CheckoutResponse,
+  ContactRequest,
   CouponValidationRequest,
   CouponValidationResult,
+  GiftCardBalance,
+  GiftCardCheckoutRequest,
+  GiftCardCheckoutResponse,
+  GiftCardStatus,
   OrgConfig,
   PriceQuote,
   PriceQuoteRequest,
@@ -39,6 +51,10 @@ export type StayCoreClient = {
   availability: {
     get: (propertyId: number) => Promise<AvailabilityCalendar>;
   };
+  options: {
+    /** Options sold on the booking page. Pass `check_in` to evaluate lead times. */
+    list: (propertyId: number, params?: { check_in?: string }) => Promise<BookingOption[]>;
+  };
   price: {
     compute: (propertyId: number, params: PriceQuoteRequest) => Promise<PriceQuote>;
   };
@@ -52,6 +68,33 @@ export type StayCoreClient = {
     get: (token: string) => Promise<BookingStatus>;
     confirm: (token: string) => Promise<BookingStatus>;
   };
+  /**
+   * Website chat, answered by the AI assistant the host configured in
+   * Stay'Core. Conversations land in the host's inbox, where a human can take
+   * over at any time. There is no websocket: poll `messages()` while the chat
+   * is open (see the `useChat` React hook).
+   */
+  chat: {
+    open: (payload?: ChatSessionRequest) => Promise<ChatSession>;
+    send: (token: string, content: string) => Promise<ChatSendResult>;
+    /** Messages after the given id (omit for the whole conversation), plus who answers next. */
+    messages: (token: string, params?: { after?: number }) => Promise<ChatMessagesResult>;
+    /** Lets the host reach the visitor by email once they have left the site. */
+    saveContact: (token: string, details: ChatContactDetails) => Promise<{ thread: ChatThreadState }>;
+  };
+  contact: {
+    /** Contact form. The message opens a thread in the host's inbox; the reply comes by email. */
+    send: (payload: ContactRequest) => Promise<{ received: boolean }>;
+  };
+  giftCards: {
+    /** Creates the pending card and its PaymentIntent on the host's Stripe account. */
+    checkout: (payload: GiftCardCheckoutRequest) => Promise<GiftCardCheckoutResponse>;
+    /** Call after Stripe succeeded: the server re-checks the payment and activates the card. */
+    confirm: (token: string) => Promise<GiftCardStatus>;
+    get: (token: string) => Promise<GiftCardStatus>;
+    /** Balance of a card, by the code printed on it. */
+    balance: (code: string) => Promise<GiftCardBalance>;
+  };
 };
 
 const DEFAULT_BASE_URL = 'https://api.stay-core.com/api/v1';
@@ -63,13 +106,37 @@ function joinUrl(base: string, path: string): string {
   return `${cleanBase}${cleanPath}`;
 }
 
+/**
+ * Serializes query params. Arrays of objects use the bracket form the backend
+ * expects: `options[0][id]=42&options[0][quantity]=1`.
+ */
 function toQueryString(params?: Record<string, unknown>): string {
   if (!params) return '';
-  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
-  if (entries.length === 0) return '';
   const search = new URLSearchParams();
-  for (const [k, v] of entries) search.set(k, String(v));
-  return `?${search.toString()}`;
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '') continue;
+
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (item && typeof item === 'object') {
+          for (const [field, fieldValue] of Object.entries(item as Record<string, unknown>)) {
+            if (fieldValue !== undefined && fieldValue !== null) {
+              search.set(`${key}[${index}][${field}]`, String(fieldValue));
+            }
+          }
+        } else if (item !== undefined && item !== null) {
+          search.set(`${key}[${index}]`, String(item));
+        }
+      });
+      continue;
+    }
+
+    search.set(key, String(value));
+  }
+
+  const query = search.toString();
+  return query ? `?${query}` : '';
 }
 
 export function createPmsClient(options: StayCoreClientOptions): StayCoreClient {
@@ -91,7 +158,7 @@ export function createPmsClient(options: StayCoreClientOptions): StayCoreClient 
   async function request<T>(
     method: 'GET' | 'POST',
     path: string,
-    init?: { query?: Record<string, unknown>; body?: unknown },
+    init?: { query?: Record<string, unknown>; body?: unknown; headers?: Record<string, string> },
   ): Promise<T> {
     const url = joinUrl(baseUrl, `${orgPath}${path}${toQueryString(init?.query)}`);
     const controller = new AbortController();
@@ -106,6 +173,7 @@ export function createPmsClient(options: StayCoreClientOptions): StayCoreClient 
           Accept: 'application/json',
           ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
           ...options.defaultHeaders,
+          ...init?.headers,
         },
         body: init?.body ? JSON.stringify(init.body) : undefined,
       });
@@ -134,6 +202,9 @@ export function createPmsClient(options: StayCoreClientOptions): StayCoreClient 
     return body.data;
   }
 
+  /** The visitor token travels as a bearer token: never in the URL, where it would be logged. */
+  const visitor = (token: string) => ({ Authorization: `Bearer ${token}` });
+
   return {
     orgSlug: options.orgSlug,
     baseUrl,
@@ -147,6 +218,11 @@ export function createPmsClient(options: StayCoreClientOptions): StayCoreClient 
     availability: {
       get: (propertyId) =>
         request<AvailabilityCalendar>('GET', `/properties/${propertyId}/availability`),
+    },
+
+    options: {
+      list: (propertyId, params) =>
+        request<BookingOption[]>('GET', `/properties/${propertyId}/options`, { query: params }),
     },
 
     price: {
@@ -168,6 +244,32 @@ export function createPmsClient(options: StayCoreClientOptions): StayCoreClient 
         request<BookingStatus>('GET', `/booking/${encodeURIComponent(token)}`),
       confirm: (token) =>
         request<BookingStatus>('POST', `/booking/${encodeURIComponent(token)}/confirm`),
+    },
+
+    chat: {
+      open: (payload) => request<ChatSession>('POST', '/chat/sessions', { body: payload ?? {} }),
+      send: (token, content) =>
+        request<ChatSendResult>('POST', '/chat/messages', { body: { content }, headers: visitor(token) }),
+      messages: (token, params) =>
+        request<ChatMessagesResult>('GET', '/chat/messages', { query: params, headers: visitor(token) }),
+      saveContact: (token, details) =>
+        request<{ thread: ChatThreadState }>('POST', '/chat/contact-details', {
+          body: details,
+          headers: visitor(token),
+        }),
+    },
+
+    contact: {
+      send: (payload) => request<{ received: boolean }>('POST', '/contact', { body: payload }),
+    },
+
+    giftCards: {
+      checkout: (payload) =>
+        request<GiftCardCheckoutResponse>('POST', '/gift-cards/checkout', { body: payload }),
+      confirm: (token) =>
+        request<GiftCardStatus>('POST', `/gift-cards/${encodeURIComponent(token)}/confirm`),
+      get: (token) => request<GiftCardStatus>('GET', `/gift-cards/${encodeURIComponent(token)}`),
+      balance: (code) => request<GiftCardBalance>('POST', '/gift-cards/balance', { body: { code } }),
     },
   };
 }

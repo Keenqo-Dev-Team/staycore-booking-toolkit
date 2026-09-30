@@ -2,19 +2,24 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { BRAND_NAME } from '../../config.ts';
 
+type NavLink = { path: string; label: string };
+
 type Props = {
   onNavigate: (path: string) => void;
   currentPath: string;
+  /** Pages of the modules the host enabled in Stay'Core (gift cards, contact). */
+  extraLinks?: NavLink[];
 };
 
-const LINKS = [
+const LINKS: NavLink[] = [
   { path: '/', label: 'Accueil' },
   { path: '/properties', label: 'Nos suites' },
   { path: '/reserver', label: 'Réserver' },
 ];
 
-export function Navbar({ onNavigate, currentPath }: Props) {
+export function Navbar({ onNavigate, currentPath, extraLinks = [] }: Props) {
   const [open, setOpen] = useState(false);
+  const links = [...LINKS, ...extraLinks];
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
@@ -28,7 +33,7 @@ export function Navbar({ onNavigate, currentPath }: Props) {
         </button>
 
         <nav className="hidden md:flex items-center gap-8">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <button
               key={l.path}
               type="button"
@@ -61,7 +66,7 @@ export function Navbar({ onNavigate, currentPath }: Props) {
 
       {open && (
         <nav className="md:hidden border-t border-gray-100 bg-white">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <button
               key={l.path}
               type="button"
