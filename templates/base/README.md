@@ -18,6 +18,9 @@ Both replace the `{{PLACEHOLDERS}}` (`{{BRAND_NAME}}`, `{{BRAND_TAGLINE}}`, `{{P
 | `/properties/:slug` | `PropertyDetailPage` | Single property page (gallery, amenities, CTA) |
 | `/reserver` | `BookingPage` | Booking flow (form → Stripe → confirmation) |
 | `/reservation/:token` | `ReservationPage` | Self-service booking tracking |
+| `/contact` | `ContactPage` | Contact form, delivered to the host's Stay'Core inbox (module `contact`) |
+| `/carte-cadeau` | `GiftCardPage` | Gift card purchase + balance lookup (module `gift_cards`) |
+| `/carte-cadeau/confirmation/:token` | `GiftCardConfirmationPage` | Gift card receipt, with its code |
 | `/mentions-legales` `/cgv` `/privacy` | `LegalPage` | Stub legal pages — fill in your own copy |
 
 ## Stay'Core integration
@@ -30,6 +33,16 @@ All booking-engine calls go through `@staycore/booking-sdk/react`:
 - `useAvailability` — month calendar with `available` flags per day
 - `usePrice` — live price quote based on date range + guests
 - `useCheckout` — mutation to create a booking + Stripe PaymentIntent
+- `useChat` — website chat answered by the host's AI assistant (`ChatBubble`)
+- `client.contact`, `client.giftCards` (through `useStayCore`) — contact form and gift cards
+
+## Website modules
+
+The chat bubble, the contact page and the gift card pages are **switched on by the host**, in Stay'Core under *Moteur de résa › Site web*. The site reads `modules` from the org config at load time and shows only what is enabled: nothing to redeploy when the host turns a module on or off.
+
+- **Chat** — `ChatBubble` (mounted in `App.tsx`). The host's assistant answers; the conversation lands in the Stay'Core inbox, where a human can take over from the desktop or the mobile app. When the assistant sends a link to `/reserver?check_in=…&check_out=…`, the bubble turns it into a button and the booking form opens with those dates. Set the link in Stay'Core (*Site web › Lien de réservation de votre site*) to `https://your-site/reserver?check_in={check_in}&check_out={check_out}`.
+- **Contact** — `ContactPage`. The message opens a thread in the host's inbox; the reply reaches the visitor by email.
+- **Gift cards** — `GiftCardPage` sells a card on the host's Stripe account; `BookingForm` takes the code as a means of payment (the quote shows what the card covers and what is left to pay).
 
 ## Customizing
 

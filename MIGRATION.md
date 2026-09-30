@@ -9,6 +9,30 @@ Les sites générés par `create-staycore-site` contiennent **deux natures de co
 
 ---
 
+## → 0.4.0 — Options, chat, formulaire de contact, cartes cadeaux
+
+Tout est additif : un site en 0.3 continue de fonctionner sans rien changer.
+
+### 1. Mettre à jour le SDK
+
+```bash
+pnpm add @staycore/booking-sdk@^0.4.0
+```
+
+### 2. Ce que vous pouvez brancher
+
+- **Options** (`pms.options.list`, hook `useOptions`) : passez la sélection à `price.compute` et à `checkout.create` sous la forme `options: [{ id, quantity }]`. Si vous appeliez déjà la route `/options` à la main, remplacez l'appel par le SDK.
+- **Carte cadeau au paiement** : un champ « code carte cadeau » qui passe `gift_card_code` au devis puis au checkout. Affichez `amount_due` plutôt que `total` sur le bouton de paiement, et sautez Stripe quand le checkout répond `payment_required: false`.
+- **Vente de cartes cadeaux** : `pms.giftCards.checkout` → Stripe Elements → `pms.giftCards.confirm`, exactement comme une réservation.
+- **Chat** : le hook `useChat({ active })`. Les messages portent un `role` (`visitor`, `assistant`, `host`).
+- **Formulaire de contact** : `pms.contact.send`.
+
+N'affichez un module que si `config().modules.<module>.enabled` est vrai : l'hôte les active un par un dans Moteur de résa › Site web.
+
+### 3. CORS
+
+Les nouvelles routes vivent sous `/api/v1/book/{slug}` : votre domaine, déjà autorisé pour la réservation, l'est aussi pour elles.
+
 ## → 0.3.0 — Taxe de séjour conforme + nuit orpheline
 
 ### 1. Mettre à jour le SDK (dépendance)

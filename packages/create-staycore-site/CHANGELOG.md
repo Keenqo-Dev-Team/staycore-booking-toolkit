@@ -1,5 +1,28 @@
 # create-staycore-site
 
+## 0.4.0
+
+### Minor Changes
+
+- Options, chat, formulaire de contact et cartes cadeaux.
+
+  - `options.list(propertyId, { check_in })` et le hook `useOptions` : le catalogue d'options du logement, que le backend servait déjà sans que le SDK l'expose.
+  - `price.compute` et `checkout.create` acceptent `options: [{ id, quantity }]` et `gift_card_code`. Le devis expose `options`, `options_total`, `stay_total`, `fees`, `gift_card_amount`, `gift_card` et `amount_due`.
+  - `chat.open`, `chat.send`, `chat.messages`, `chat.saveContact` et le hook `useChat` : chat du site, tenu par l'assistant IA de l'hôte et repris en main depuis sa messagerie.
+  - `contact.send` : formulaire de contact relié à la messagerie de l'hôte.
+  - `giftCards.checkout`, `giftCards.confirm`, `giftCards.get`, `giftCards.balance` : vente de cartes cadeaux et consultation d'un solde.
+  - `OrgConfig.modules` : les modules ouverts par l'hôte.
+  - `SDK_VERSION` suit enfin la version du paquet.
+
+  Non-breaking : aucun champ existant ne change.
+
+  Le gabarit généré par `create-staycore-site` suit : bulle de chat, page `/contact` et page `/carte-cadeau` (achat, solde, confirmation) apparaissent dès que l'hôte ouvre le module correspondant dans Stay'Core, sans nouveau déploiement. Le formulaire de réservation accepte un code de carte cadeau et reprend les dates passées dans l'URL (`?check_in=…&check_out=…`), ce qui permet à l'assistant d'envoyer un lien de réservation prérempli. Les sites générés dépendent désormais de `@staycore/booking-sdk@^0.4.0`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @staycore/booking-sdk@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

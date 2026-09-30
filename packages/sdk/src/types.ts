@@ -49,6 +49,32 @@ export type OrgConfig = {
     test_mode: boolean;
   };
   stripe_public_key: string | null;
+  /**
+   * Modules the org enabled for its website (chat, contact form, gift cards).
+   * Absent on backends older than the modules release — treat as all disabled.
+   */
+  modules?: WebsiteModules;
+};
+
+export type WebsiteModules = {
+  chat: {
+    enabled: boolean;
+    welcome_message_fr: string | null;
+    welcome_message_en: string | null;
+  };
+  contact: { enabled: boolean };
+  gift_cards: {
+    enabled: boolean;
+    /** Amounts the host proposes, in the org currency. */
+    amounts: number[];
+    allow_custom_amount: boolean;
+    min_amount: number;
+    max_amount: number;
+    validity_months: number;
+    currency: string;
+  };
+  /** Present when the backend requires a captcha token on chat/contact. */
+  captcha: { provider: 'turnstile'; site_key: string } | null;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,6 +132,9 @@ export type AvailabilityCalendarLegacy = {
 // GET /api/v1/book/{slug}/properties/{id}/price
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** One option of the cart: the catalog id and a quantity (default 1). */
+export type OptionSelection = { id: number; quantity?: number };
+
 export type PriceQuoteRequest = {
   check_in: string; // YYYY-MM-DD
   check_out: string; // YYYY-MM-DD
@@ -115,6 +144,46 @@ export type PriceQuoteRequest = {
   /** Enfants (-18 ans), exonérés de taxe de séjour. */
   children_count?: number;
   coupon_code?: string;
+  /** Options picked by the guest. Priced by the server, never by the client. */
+  options?: OptionSelection[];
+  /** Gift card to pay with. A means of payment: `total` is unchanged, `amount_due` drops. */
+  gift_card_code?: string;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/v1/book/{slug}/properties/{id}/options
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type BookingOption = {
+  id: number;
+  name: string;
+  description: string | null;
+  type: 'standard' | 'early_check_in' | 'late_check_out';
+  /** Guaranteed time for early check-in / late check-out, e.g. "16:00". */
+  available_time: string | null;
+  price: number;
+  currency: string;
+  image_url: string | null;
+  /** `instant`: charged with the stay. `on_request`: charged only once the host agrees. */
+  fulfillment_mode: 'instant' | 'on_request';
+  max_quantity: number;
+  lead_time_hours: number | null;
+  /** False when the option can no longer be ordered for the given check-in. */
+  available: boolean;
+  unavailable_reason: string | null;
+};
+
+/** An option line as priced by the server in a quote or a booking. */
+export type PricedOption = {
+  property_upsell_id: number;
+  name: string;
+  type: BookingOption['type'];
+  available_time: string | null;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  currency: string;
+  fulfillment_mode: BookingOption['fulfillment_mode'];
 };
 
 /**
@@ -151,6 +220,32 @@ export type PriceQuote = {
   } | null;
   coupon_error?: string;
   currency?: string;
+  /** Options kept by the server, priced. */
+  options?: PricedOption[];
+  /** Options charged with the stay — included in `total`. */
+  options_total?: number;
+  /** Options awaiting the host's approval — NOT in `total`. */
+  options_on_request_total?: number;
+  options_errors?: string[];
+  /** The stay alone, options excluded. */
+  stay_total?: number;
+  fees?: { id: number; name: string; description: string | null; amount: number; label: string }[];
+  fees_total?: number;
+  payment_mode?: 'full' | 'deposit' | 'request';
+  deposit_amount?: number | null;
+  /** Part of `total` paid by the gift card, or null when none applies. */
+  gift_card_amount?: number | null;
+  gift_card?: {
+    code: string;
+    applied_amount: number;
+    /** What stays on the card after this booking. */
+    remaining_balance: number;
+    expires_at: string | null;
+  } | null;
+  /** Why the gift card was not applied (unknown code, expired, empty…). */
+  gift_card_error?: string;
+  /** What will be charged online now, gift card deducted. */
+  amount_due?: number;
   [key: string]: unknown;
 };
 
@@ -173,6 +268,8 @@ export type CheckoutRequest = {
   message?: string;
   locale?: 'fr' | 'en';
   coupon_code?: string;
+  options?: OptionSelection[];
+  gift_card_code?: string;
 };
 
 export type CheckoutResponse = {
@@ -196,6 +293,18 @@ export type CheckoutResponse = {
   auto_confirmed_for_test?: boolean;
   /** Reservation id created when auto_confirmed_for_test is true. */
   reservation_id?: number;
+  /**
+   * False when nothing is left to charge (a gift card or a coupon covered
+   * everything): the booking is already confirmed, skip Stripe.
+   */
+  payment_required?: boolean;
+  /** `confirmed` when the booking was confirmed without payment. */
+  status?: string;
+  options?: PricedOption[];
+  options_amount?: number;
+  options_on_request_amount?: number;
+  /** Part of the total paid by the gift card. */
+  gift_card_amount?: number | null;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -242,4 +351,128 @@ export type BookingStatus = {
   property?: Pick<Property, 'id' | 'name' | 'image_url' | 'city' | 'country' | 'address'>;
   paid_at?: string | null;
   created_at?: string;
+  /** Options of the booking; `approval_status` tells where an on-request option stands. */
+  options?: (Partial<PricedOption> & {
+    name: string;
+    approval_status?: 'not_required' | 'pending' | 'approved' | 'declined';
+  })[];
+  options_amount?: number;
+  gift_card_amount?: number | null;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Website chat — /api/v1/book/{slug}/chat/*
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ChatSessionRequest = {
+  /** Property the visitor is looking at. The host's assistant is set per property. */
+  property_id?: number;
+  locale?: 'fr' | 'en';
+  /** Page the chat was opened from; used in the "continue on the website" email link. */
+  origin_url?: string;
+  name?: string;
+  email?: string;
+  /** Turnstile token, required when `modules.captcha` is set. */
+  captcha_token?: string;
+};
+
+export type ChatMessage = {
+  id: number;
+  /** `assistant`: the host's AI assistant. `host`: a human from the host's team. */
+  role: 'visitor' | 'assistant' | 'host';
+  content: string;
+  sent_at: string | null;
+};
+
+export type ChatThreadState = {
+  /**
+   * Who answers next:
+   * - `assistant`: the AI assistant replies on its own;
+   * - `awaiting_host`: the assistant drafts, the host approves before sending;
+   * - `host`: a human has taken over (or no assistant is available).
+   */
+  status: 'assistant' | 'awaiting_host' | 'host';
+  assistant_available: boolean;
+  /** True once the visitor left an email: replies reach them even offline. */
+  has_contact: boolean;
+  kind: 'chat' | 'contact';
+};
+
+export type ChatSession = {
+  /** Visitor token. Keep it (localStorage) to resume the conversation. */
+  token: string;
+  welcome_message: string | null;
+  thread: ChatThreadState;
+  messages: ChatMessage[];
+};
+
+export type ChatSendResult = { message: ChatMessage; thread: ChatThreadState };
+
+export type ChatMessagesResult = { messages: ChatMessage[]; thread: ChatThreadState };
+
+export type ChatContactDetails = { name?: string; email?: string; phone?: string };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Contact form — POST /api/v1/book/{slug}/contact
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ContactRequest = {
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  property_id?: number;
+  locale?: 'fr' | 'en';
+  origin_url?: string;
+  captcha_token?: string;
+  /** Honeypot: leave empty. A hidden field bots fill in. */
+  website?: string;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Gift cards — /api/v1/book/{slug}/gift-cards/*
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type GiftCardCheckoutRequest = {
+  amount: number;
+  purchaser_name: string;
+  purchaser_email: string;
+  recipient_name?: string;
+  /** When set, the card is emailed to the recipient; otherwise to the purchaser. */
+  recipient_email?: string;
+  message?: string;
+  /** YYYY-MM-DD. Delivery date chosen by the purchaser; immediate when omitted. */
+  send_at?: string;
+  locale?: 'fr' | 'en';
+};
+
+export type GiftCardCheckoutResponse = {
+  gift_card_token: string;
+  amount: number;
+  currency: string;
+  client_secret?: string;
+  stripe_public_key?: string | null;
+  is_test?: boolean;
+  /** Test mode on a live Stripe key: no payment, the card is active right away. */
+  auto_confirmed_for_test?: boolean;
+  status?: string;
+};
+
+export type GiftCardStatus = {
+  token: string;
+  status: 'pending_payment' | 'active' | 'disabled' | 'cancelled';
+  amount: number;
+  currency: string;
+  /** The code to redeem. Null until the card is paid. */
+  code: string | null;
+  recipient_name: string | null;
+  recipient_email: string | null;
+  send_at: string | null;
+  delivered_at: string | null;
+  expires_at: string | null;
+  is_test: boolean;
+};
+
+export type GiftCardBalance =
+  | { valid: true; balance: number; currency: string; expires_at: string | null }
+  | { valid: false; message: string };

@@ -8,23 +8,39 @@ import { DatePickerCalendar } from './DatePickerCalendar.tsx';
 
 type Props = {
   initialPropertyId?: number;
+  /** Shows the gift card field (the host enabled gift cards in Stay'Core). */
+  giftCardsEnabled?: boolean;
   onCheckoutCreated: (response: CheckoutResponse) => void;
 };
 
-export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Dates carried by the URL, e.g. the booking link the chat assistant sends. */
+function datesFromUrl() {
+  const query = new URLSearchParams(window.location.search);
+  const checkIn = query.get('check_in') ?? '';
+  const checkOut = query.get('check_out') ?? '';
+  return ISO_DATE.test(checkIn) && ISO_DATE.test(checkOut) && checkIn < checkOut
+    ? { check_in: checkIn, check_out: checkOut }
+    : { check_in: '', check_out: '' };
+}
+
+export function BookingForm({ initialPropertyId, giftCardsEnabled = false, onCheckoutCreated }: Props) {
   const [propertyId, setPropertyId] = useState<number>(
     initialPropertyId ?? properties[0]?.pmsPropertyId ?? 0,
   );
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     guest_name: '',
     guest_email: '',
     guest_phone: '',
-    check_in: '',
-    check_out: '',
+    ...datesFromUrl(),
     adults_count: 2,
     children_count: 0,
     message: '',
-  });
+  }));
+  // The code is only sent to the server once the visitor applies it.
+  const [giftCardDraft, setGiftCardDraft] = useState('');
+  const [giftCardCode, setGiftCardCode] = useState('');
   const guestsCount = form.adults_count + form.children_count;
 
   const availability = useAvailability(propertyId);
@@ -48,9 +64,10 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
             guests_count: guestsCount,
             adults_count: form.adults_count,
             children_count: form.children_count,
+            gift_card_code: giftCardCode || undefined,
           }
         : null,
-    [form.check_in, form.check_out, guestsCount, form.adults_count, form.children_count],
+    [form.check_in, form.check_out, guestsCount, form.adults_count, form.children_count, giftCardCode],
   );
   const price = usePrice(propertyId, priceParams);
 
@@ -59,6 +76,8 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
 
   const nights = calculateNights(form.check_in, form.check_out);
   const total = price.data ? toNumber(price.data.total) : 0;
+  const giftCard = price.data?.gift_card ?? null;
+  const amountDue = price.data?.amount_due != null ? toNumber(price.data.amount_due) : total;
   const canSubmit =
     nights > 0 &&
     !!form.guest_name &&
@@ -90,6 +109,7 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
       children_count: form.children_count,
       message: form.message.trim() || undefined,
       locale: 'fr',
+      gift_card_code: giftCard ? giftCardCode : undefined,
     };
 
     try {
@@ -214,6 +234,39 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
         />
       </div>
 
+      {giftCardsEnabled && (
+        <div>
+          <label htmlFor="gift-card-code" className="block text-sm font-medium text-gray-700 mb-2">
+            Carte cadeau (optionnel)
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="gift-card-code"
+              type="text"
+              value={giftCardDraft}
+              onChange={(e) => setGiftCardDraft(e.target.value.toUpperCase())}
+              autoComplete="off"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg font-mono focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="XXXX-XXXX-XXXX"
+            />
+            <button
+              type="button"
+              onClick={() => setGiftCardCode(giftCardDraft.trim())}
+              disabled={giftCardDraft.trim() === giftCardCode}
+              className="shrink-0 px-5 py-3 rounded-full border border-brand text-brand text-sm font-medium hover:bg-brand/5 disabled:border-gray-200 disabled:text-gray-400 transition-colors"
+            >
+              Appliquer
+            </button>
+          </div>
+          {giftCardCode && nights === 0 && (
+            <p className="text-xs text-gray-600 mt-2">Choisissez vos dates : la carte sera déduite du total.</p>
+          )}
+          {giftCardCode && price.data?.gift_card_error && (
+            <p className="text-sm text-red-600 mt-2">{price.data.gift_card_error}</p>
+          )}
+        </div>
+      )}
+
       {nights > 0 && price.data && (
         <div className="bg-brand/5 border-2 border-brand/30 rounded-xl p-5">
           <div className="flex items-center justify-between mb-2">
@@ -224,6 +277,21 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
             {nights} {nights > 1 ? 'nuits' : 'nuit'}
             {price.data.nightly_average ? ` × ${formatPrice(toNumber(price.data.nightly_average))}` : ''}
           </p>
+          {giftCard && (
+            <div className="mt-3 pt-3 border-t border-brand/20 space-y-1 text-sm text-gray-800">
+              <p className="flex items-center justify-between">
+                <span>Carte cadeau</span>
+                <span>− {formatAmount(toNumber(giftCard.applied_amount))}</span>
+              </p>
+              <p className="flex items-center justify-between font-medium">
+                <span>Reste à payer</span>
+                <span>{formatAmount(amountDue)}</span>
+              </p>
+              <p className="text-xs text-gray-600">
+                Il restera {formatAmount(toNumber(giftCard.remaining_balance))} sur la carte.
+              </p>
+            </div>
+          )}
           <p className="text-xs text-gray-600 mt-2">Réservation directe, sans commission.</p>
         </div>
       )}
@@ -242,8 +310,17 @@ export function BookingForm({ initialPropertyId, onCheckoutCreated }: Props) {
         disabled={!canSubmit}
         className="w-full py-4 rounded-full bg-brand text-brand-contrast font-medium text-base hover:bg-brand-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
       >
-        {checkout.isLoading ? 'Création de la réservation…' : 'Continuer vers le paiement'}
+        {checkout.isLoading
+          ? 'Création de la réservation…'
+          : giftCard && amountDue < 0.5
+            ? 'Confirmer la réservation'
+            : 'Continuer vers le paiement'}
       </button>
     </form>
   );
+}
+
+/** Gift card lines keep the cents: a balance is rarely a round number. */
+function formatAmount(value: number): string {
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
 }

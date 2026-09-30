@@ -40,7 +40,7 @@ export function CookieConsent() {
     <div
       role="dialog"
       aria-label="Bandeau cookies"
-      className="fixed bottom-4 inset-x-4 md:inset-x-auto md:right-6 md:max-w-md z-50 bg-white rounded-2xl shadow-xl border border-gray-100 p-5"
+      className="fixed bottom-4 inset-x-4 md:inset-x-auto md:left-6 md:max-w-md z-50 bg-white rounded-2xl shadow-xl border border-gray-100 p-5"
     >
       <p className="text-sm text-gray-800 mb-4">
         Nous utilisons des cookies pour mesurer la fréquentation et améliorer le site.
